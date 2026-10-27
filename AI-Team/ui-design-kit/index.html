@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>能源监控平台 · 能源总览</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="./echarts.min.js"></script>
+<script>window.echarts || document.write('<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"><\/script>')</script>
+<style>
+  :root {
+    --bg: #0A0C10;
+    --bg-sidebar: #0D1017;
+    --card: #13161E;
+    --card-hover: #161A24;
+    --border: #1F2330;
+    --border-hover: #262B3A;
+    --axis: #2A2F3D;
+    --primary: #10B981;
+    --primary-hover: #28C08E;
+    --text: #F4F6F8;
+    --text-2: #9CA3B4;
+    --text-3: #5C6373;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --info: #3B82F6;
+    --font: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: rgba(16,185,129,.25); }
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
+  svg.icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    position: fixed; inset: 0 auto 0 0; width: 220px; z-index: 30;
+    background: var(--bg-sidebar); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+  .brand {
+    height: 56px; flex-shrink: 0; display: flex; align-items: center; gap: 10px;
+    padding: 0 16px; border-bottom: 1px solid var(--border);
+  }
+  .brand-mark {
+    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    background: rgba(16,185,129,.14); color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .brand-mark svg.icon { width: 15px; height: 15px; }
+  .brand-text { display: flex; flex-direction: column; line-height: 1.25; }
+  .brand-text strong { font-size: 13px; font-weight: 600; letter-spacing: .01em; }
+  .brand-text span { font-size: 10px; color: var(--text-3); font-family: var(--mono); letter-spacing: .04em; }
+  .nav { flex: 1; overflow-y: auto; padding: 12px 10px; }
+  .nav::-webkit-scrollbar { width: 4px; }
+  .nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .nav-group {
+    font-size: 11px; font-weight: 500; color: var(--text-3);
+    letter-spacing: .08em; padding: 16px 10px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; margin-bottom: 2px; border-radius: 8px;
+    font-size: 13px; color: var(--text-2); transition: all .2s ease;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.04); color: var(--text); }
+  .nav-item.active { background: rgba(16,185,129,.12); color: var(--primary); font-weight: 500; }
+  .sidebar-foot { padding: 12px; border-top: 1px solid var(--border); }
+  .sys-status {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+  }
+  .sys-status .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+  }
+  .sys-status strong { display: block; font-size: 12px; font-weight: 500; }
+  .sys-status span { display: block; font-size: 10px; color: var(--text-3); margin-top: 1px; }
+
+  /* ---------- Main / Topbar ---------- */
+  .main { margin-left: 220px; min-height: 100vh; display: flex; flex-direction: column; }
+  .topbar {
+    position: sticky; top: 0; z-index: 20; height: 56px; flex-shrink: 0;
+    background: var(--card); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; padding: 0 24px;
+  }
+  .crumbs { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); }
+  .crumbs svg.icon { width: 13px; height: 13px; }
+  .crumbs .current { color: var(--text); font-weight: 500; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .clock { font-size: 12px; color: var(--text-2); letter-spacing: .02em; }
+  .icon-btn {
+    width: 34px; height: 34px; border-radius: 8px; position: relative;
+    border: 1px solid var(--border); color: var(--text-2);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s ease;
+  }
+  .icon-btn:hover { background: var(--card-hover); border-color: var(--border-hover); color: var(--text); }
+  .icon-btn .badge {
+    position: absolute; top: 7px; right: 8px; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--danger); border: 2px solid var(--card);
+  }
+  .topbar-divider { width: 1px; height: 20px; background: var(--border); }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #10B981, #0B8A62);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: #06281C; cursor: pointer;
+    transition: all .2s ease;
+  }
+  .avatar:hover { filter: brightness(1.1); }
+
+  /* ---------- Content ---------- */
+  .content { flex: 1; padding: 24px; max-width: 1720px; width: 100%; margin: 0 auto; }
+  .toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-title h1 { font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+  .page-title p { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+  .page-title p b { color: var(--text-2); font-weight: 500; font-family: var(--mono); }
+  .toolbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .seg {
+    display: flex; padding: 3px; gap: 2px;
+    background: var(--bg-sidebar); border: 1px solid var(--border); border-radius: 8px;
+  }
+  .seg-btn {
+    padding: 5px 14px; border-radius: 6px; font-size: 12px; color: var(--text-3);
+    transition: all .2s ease;
+  }
+  .seg-btn:hover { color: var(--text); }
+  .seg-btn.active { background: var(--card-hover); color: var(--text); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 16px; border-radius: 8px;
+    background: var(--primary); color: #FFFFFF; font-size: 13px; font-weight: 500;
+    transition: all .2s ease;
+  }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-primary svg.icon { width: 14px; height: 14px; }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .card:hover { background: var(--card-hover); border-color: var(--border-hover); box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--text-2); }
+  .card-tools { display: flex; align-items: center; gap: 8px; }
+  .unit-note { font-size: 11px; color: var(--text-3); }
+  .mini-btn {
+    width: 26px; height: 26px; border-radius: 6px; color: var(--text-3);
+    display: flex; align-items: center; justify-content: center; transition: all .2s ease;
+  }
+  .mini-btn:hover { background: var(--border); color: var(--text-2); }
+  .mini-btn svg.icon { width: 14px; height: 14px; }
+  .count-pill {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    background: rgba(239,68,68,.1); color: #F87171; font-weight: 500;
+  }
+
+  /* ---------- KPI ---------- */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+  .kpi-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .kpi-head .card-title { font-size: 13px; }
+  .kpi-head svg.icon { width: 16px; height: 16px; color: var(--text-3); }
+  .kpi-value { display: flex; align-items: baseline; gap: 6px; font-family: var(--mono); font-weight: 700; font-size: 30px; letter-spacing: -.02em; }
+  .kpi-value .prefix, .kpi-value .suffix { font-size: 13px; font-weight: 500; color: var(--text-3); font-family: var(--font); letter-spacing: 0; }
+  .kpi-foot { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  .delta {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px;
+    font-family: var(--mono);
+  }
+  .delta svg.icon { width: 11px; height: 11px; stroke-width: 2.5; }
+  .delta.up { background: rgba(239,68,68,.1); color: #F87171; }
+  .delta.down { background: rgba(34,197,94,.1); color: #34D399; }
+  .delta.warn { background: rgba(245,158,11,.1); color: #FBBF24; }
+  .kpi-note { font-size: 11px; color: var(--text-3); }
+  .kpi-foot .spark { margin-left: auto; width: 72px; height: 24px; }
+
+  /* ---------- Grids ---------- */
+  .grid-main { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-bottom { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* ---------- Charts ---------- */
+  .chart { width: 100%; }
+  .chart-error {
+    height: 100%; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--text-3);
+  }
+  #trendChart { height: 296px; }
+  #gaugeChart { height: 208px; }
+  #weekChart { height: 240px; }
+
+  /* ---------- Gauge stats ---------- */
+  .gauge-stats {
+    display: flex; border-top: 1px solid var(--border); padding-top: 14px; margin-top: 6px;
+  }
+  .gauge-stats > div { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .gauge-stats > div + div { border-left: 1px solid var(--border); padding-left: 16px; }
+  .gauge-stats .label { font-size: 11px; color: var(--text-3); }
+  .gauge-stats .value { font-family: var(--mono); font-size: 16px; font-weight: 600; }
+  .gauge-stats .value em { font-style: normal; font-size: 11px; color: var(--text-3); font-family: var(--font); margin-left: 3px; }
+
+  /* ---------- Ranking ---------- */
+  .rank-list { display: flex; flex-direction: column; gap: 4px; }
+  .rank-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 10px; border-radius: 8px; transition: background .2s ease;
+  }
+  .rank-item:hover { background: rgba(255,255,255,.03); }
+  .rank-no { font-family: var(--mono); font-size: 11px; color: var(--text-3); width: 20px; flex-shrink: 0; }
+  .rank-item:first-child .rank-no { color: var(--primary); font-weight: 600; }
+  .rank-info { flex: 1; min-width: 0; }
+  .rank-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 7px; }
+  .rank-name { font-size: 13px; }
+  .rank-val { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+  .rank-val em { font-style: normal; font-size: 10px; color: var(--text-3); font-family: var(--font); font-weight: 400; margin-left: 3px; }
+  .rank-bar { height: 4px; border-radius: 2px; background: var(--border); overflow: hidden; }
+  .rank-bar i { display: block; height: 100%; border-radius: 2px; background: var(--primary); transition: width .6s cubic-bezier(.25,.8,.35,1); }
+
+  /* ---------- Alerts ---------- */
+  .alert-list { display: flex; flex-direction: column; }
+  .alert-item {
+    display: flex; align-items: center; gap: 12px; padding: 11px 10px;
+    border-radius: 8px; transition: background .2s ease; cursor: pointer;
+  }
+  .alert-item:hover { background: rgba(255,255,255,.03); }
+  .alert-item + .alert-item { border-top: 1px solid rgba(31,35,48,.6); }
+  .alert-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .alert-dot.danger { background: var(--danger); box-shadow: 0 0 0 3px rgba(239,68,68,.15); }
+  .alert-dot.warning { background: var(--warning); box-shadow: 0 0 0 3px rgba(245,158,11,.15); }
+  .alert-dot.info { background: var(--info); box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+  .alert-body { flex: 1; min-width: 0; }
+  .alert-msg { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .alert-meta { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+  .alert-go { width: 14px; height: 14px; color: var(--text-3); opacity: 0; transform: translateX(-4px); transition: all .2s ease; flex-shrink: 0; }
+  .alert-item:hover .alert-go { opacity: 1; transform: translateX(0); }
+  .alert-foot {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    padding-top: 12px; margin-top: 4px; border-top: 1px solid rgba(31,35,48,.6);
+    font-size: 12px; color: var(--text-3); transition: color .2s ease; cursor: pointer;
+  }
+  .alert-foot:hover { color: var(--primary); }
+  .alert-foot svg.icon { width: 12px; height: 12px; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1360px) {
+    .grid-bottom { grid-template-columns: 1fr 1fr; }
+    .grid-bottom .card:last-child { grid-column: span 2; }
+  }
+  @media (max-width: 1200px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-main { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 1024px) {
+    .sidebar { width: 60px; }
+    .brand { padding: 0; justify-content: center; }
+    .brand-text, .nav-group, .nav-item span, .sidebar-foot { display: none; }
+    .nav-item { justify-content: center; padding: 10px; }
+    .main { margin-left: 60px; }
+  }
+  @media (max-width: 720px) {
+    .kpi-grid, .grid-bottom { grid-template-columns: 1fr; }
+    .grid-bottom .card:last-child { grid-column: auto; }
+    .clock, .crumbs .first { display: none; }
+    .content { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Icon sprite (lucide style, no emoji) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+  <symbol id="i-factory" viewBox="0 0 24 24"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.94 15.5a2 2 0 0 0-1.44-1.44L2.37 12.5a.5.5 0 0 1 0-.96l6.13-1.58A2 2 0 0 0 9.94 8.5l1.58-6.13a.5.5 0 0 1 .96 0l1.58 6.13a2 2 0 0 0 1.44 1.44l6.13 1.58a.5.5 0 0 1 0 .96l-6.13 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.96 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-coins" viewBox="0 0 24 24"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
+  <symbol id="i-trend-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
+  <symbol id="i-trend-down" viewBox="0 0 24 24"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+  <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+</svg>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark"><svg class="icon"><use href="#i-zap"/></svg></div>
+    <div class="brand-text"><strong>能源监控平台</strong><span>ENERGY OS</span></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-group">运营</div>
+    <a class="nav-item active" href="#"><svg class="icon"><use href="#i-grid"/></svg><span>能源总览</span></a>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-factory"/></svg><span>车间能耗</span></a>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-chart"/></svg><span>能源报表</span></a>
+    <div class="nav-group">智能</div>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-sparkles"/></svg><span>能耗预测</span></a>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-shield"/></svg><span>节能诊断</span></a>
+    <div class="nav-group">设备</div>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-cpu"/></svg><span>设备台账</span></a>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-alert"/></svg><span>设备告警</span></a>
+    <div class="nav-group">系统</div>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-users"/></svg><span>用户管理</span></a>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-sliders"/></svg><span>系统设置</span></a>
+  </nav>
+  <div class="sidebar-foot">
+    <div class="sys-status">
+      <span class="dot"></span>
+      <div><strong>系统运行正常</strong><span>已连续运行 126 天</span></div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <header class="topbar">
+    <nav class="crumbs">
+      <span class="first">运营</span>
+      <svg class="icon"><use href="#i-chev-r"/></svg>
+      <span class="current">能源总览</span>
+    </nav>
+    <div class="topbar-right">
+      <span class="clock mono" id="clock">----:--:--</span>
+      <button class="icon-btn" title="通知">
+        <svg class="icon"><use href="#i-bell"/></svg>
+        <span class="badge"></span>
+      </button>
+      <div class="topbar-divider"></div>
+      <div class="avatar" title="周明 · 管理员">ZM</div>
+    </div>
+  </header>
+
+  <main class="content">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="page-title">
+        <h1>能源总览</h1>
+        <p>最后更新 <b id="updated">--:--:--</b> · 每 5 分钟自动刷新</p>
+      </div>
+      <div class="toolbar-actions">
+        <div class="seg" id="seg">
+          <button class="seg-btn active">今日</button>
+          <button class="seg-btn">本周</button>
+          <button class="seg-btn">本月</button>
+        </div>
+        <button class="btn-primary"><svg class="icon"><use href="#i-download"/></svg>导出报表</button>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <section class="kpi-grid">
+      <div class="card kpi">
+        <div class="kpi-head">
+          <span class="card-title">总能耗（今日）</span>
+          <svg class="icon"><use href="#i-zap"/></svg>
+        </div>
+        <div class="kpi-value">12,847<span class="suffix">kWh</span></div>
+        <div class="kpi-foot">
+          <span class="delta up"><svg class="icon"><use href="#i-trend-up"/></svg>6.2%</span>
+          <span class="kpi-note">较昨日同期</span>
+          <svg class="spark" viewBox="0 0 72 24" preserveAspectRatio="none"><polyline points="2,20 12,17 22,18 32,13 42,14 52,9 62,7 70,4" fill="none" stroke="#10B981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi-head">
+          <span class="card-title">空耗金额（今日）</span>
+          <svg class="icon"><use href="#i-coins"/></svg>
+        </div>
+        <div class="kpi-value"><span class="prefix">¥</span>3,264</div>
+        <div class="kpi-foot">
+          <span class="delta down"><svg class="icon"><use href="#i-trend-down"/></svg>12.4%</span>
+          <span class="kpi-note">较昨日同期</span>
+          <svg class="spark" viewBox="0 0 72 24" preserveAspectRatio="none"><polyline points="2,6 12,9 22,8 32,12 42,11 52,15 62,14 70,18" fill="none" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi-head">
+          <span class="card-title">延时异常</span>
+          <svg class="icon"><use href="#i-alert"/></svg>
+        </div>
+        <div class="kpi-value">7<span class="suffix">项</span></div>
+        <div class="kpi-foot">
+          <span class="delta warn"><svg class="icon"><use href="#i-trend-up"/></svg>2 起</span>
+          <span class="kpi-note">较昨日 · 3 项待处理</span>
+          <svg class="spark" viewBox="0 0 72 24" preserveAspectRatio="none"><polyline points="2,16 12,15 22,17 32,10 42,13 52,6 62,9 70,5" fill="none" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi-head">
+          <span class="card-title">综合单耗</span>
+          <svg class="icon"><use href="#i-gauge"/></svg>
+        </div>
+        <div class="kpi-value">0.842<span class="suffix">kgce/t</span></div>
+        <div class="kpi-foot">
+          <span class="delta down"><svg class="icon"><use href="#i-trend-down"/></svg>1.8%</span>
+          <span class="kpi-note">较基线</span>
+          <svg class="spark" viewBox="0 0 72 24" preserveAspectRatio="none"><polyline points="2,8 12,10 22,9 32,13 42,12 52,15 62,16 70,19" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trend + Gauge -->
+    <section class="grid-main">
+      <div class="card">
+        <header class="card-head">
+          <h2 class="card-title">24 小时能耗趋势</h2>
+          <div class="card-tools">
+            <span class="unit-note">单位 · kWh</span>
+            <button class="mini-btn" title="更多"><svg class="icon"><use href="#i-more"/></svg></button>
+          </div>
+        </header>
+        <div id="trendChart" class="chart"></div>
+      </div>
+      <div class="card">
+        <header class="card-head">
+          <h2 class="card-title">节能率</h2>
+          <div class="card-tools">
+            <span class="unit-note">本月累计</span>
+            <button class="mini-btn" title="更多"><svg class="icon"><use href="#i-more"/></svg></button>
+          </div>
+        </header>
+        <div id="gaugeChart" class="chart"></div>
+        <div class="gauge-stats">
+          <div><span class="label">节能量</span><span class="value">1,842<em>kgce</em></span></div>
+          <div><span class="label">目标节能率</span><span class="value">20.0<em>%</em></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ranking / Week / Alerts -->
+    <section class="grid-bottom">
+      <div class="card">
+        <header class="card-head">
+          <h2 class="card-title">车间能耗排名</h2>
+          <div class="card-tools">
+            <span class="unit-note">按能耗降序</span>
+          </div>
+        </header>
+        <div class="rank-list">
+          <div class="rank-item"><span class="rank-no">01</span><div class="rank-info"><div class="rank-top"><span class="rank-name">一号车间</span><span class="rank-val">3,246<em>kWh</em></span></div><div class="rank-bar"><i style="width:100%"></i></div></div></div>
+          <div class="rank-item"><span class="rank-no">02</span><div class="rank-info"><div class="rank-top"><span class="rank-name">二号车间</span><span class="rank-val">2,845<em>kWh</em></span></div><div class="rank-bar"><i style="width:87.6%"></i></div></div></div>
+          <div class="rank-item"><span class="rank-no">03</span><div class="rank-info"><div class="rank-top"><span class="rank-name">三号车间</span><span class="rank-val">2,487<em>kWh</em></span></div><div class="rank-bar"><i style="width:76.6%"></i></div></div></div>
+          <div class="rank-item"><span class="rank-no">04</span><div class="rank-info"><div class="rank-top"><span class="rank-name">四号车间</span><span class="rank-val">1,932<em>kWh</em></span></div><div class="rank-bar"><i style="width:59.5%"></i></div></div></div>
+          <div class="rank-item"><span class="rank-no">05</span><div class="rank-info"><div class="rank-top"><span class="rank-name">五号车间</span><span class="rank-val">1,546<em>kWh</em></span></div><div class="rank-bar"><i style="width:47.6%"></i></div></div></div>
+          <div class="rank-item"><span class="rank-no">06</span><div class="rank-info"><div class="rank-top"><span class="rank-name">动力中心</span><span class="rank-val">1,204<em>kWh</em></span></div><div class="rank-bar"><i style="width:37.1%"></i></div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <header class="card-head">
+          <h2 class="card-title">本周能耗</h2>
+          <div class="card-tools">
+            <span class="unit-note">单位 · kWh</span>
+            <button class="mini-btn" title="更多"><svg class="icon"><use href="#i-more"/></svg></button>
+          </div>
+        </header>
+        <div id="weekChart" class="chart"></div>
+      </div>
+
+      <div class="card">
+        <header class="card-head">
+          <h2 class="card-title">实时告警</h2>
+          <div class="card-tools"><span class="count-pill">5 条今日</span></div>
+        </header>
+        <div class="alert-list">
+          <div class="alert-item">
+            <span class="alert-dot danger"></span>
+            <div class="alert-body">
+              <p class="alert-msg">三号车间 · 3# 空压机延时启动超 15 分钟</p>
+              <p class="alert-meta">设备告警 · 10:24</p>
+            </div>
+            <svg class="icon alert-go"><use href="#i-arrow-r"/></svg>
+          </div>
+          <div class="alert-item">
+            <span class="alert-dot warning"></span>
+            <div class="alert-body">
+              <p class="alert-msg">二号车间 · 夜班单耗高于基线 8.3%</p>
+              <p class="alert-meta">能耗诊断 · 09:47</p>
+            </div>
+            <svg class="icon alert-go"><use href="#i-arrow-r"/></svg>
+          </div>
+          <div class="alert-item">
+            <span class="alert-dot warning"></span>
+            <div class="alert-body">
+              <p class="alert-msg">配电房 B 变压器负载率 87%，接近阈值</p>
+              <p class="alert-meta">电力监测 · 09:12</p>
+            </div>
+            <svg class="icon alert-go"><use href="#i-arrow-r"/></svg>
+          </div>
+          <div class="alert-item">
+            <span class="alert-dot info"></span>
+            <div class="alert-body">
+              <p class="alert-msg">一号车间 · 计量点 E-102 数据补采完成</p>
+              <p class="alert-meta">数据服务 · 08:35</p>
+            </div>
+            <svg class="icon alert-go"><use href="#i-arrow-r"/></svg>
+          </div>
+          <div class="alert-item">
+            <span class="alert-dot info"></span>
+            <div class="alert-body">
+              <p class="alert-msg">昨日能耗基线重算完成，偏差 0.6%</p>
+              <p class="alert-meta">数据服务 · 07:00</p>
+            </div>
+            <svg class="icon alert-go"><use href="#i-arrow-r"/></svg>
+          </div>
+        </div>
+        <a class="alert-foot" href="#">查看全部告警<svg class="icon"><use href="#i-chev-r"/></svg></a>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  // Clock
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function tick() {
+    var d = new Date();
+    var t = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+    document.getElementById('clock').textContent = t;
+    document.getElementById('updated').textContent = t;
+  }
+  tick(); setInterval(tick, 1000);
+
+  // Segmented control
+  document.getElementById('seg').addEventListener('click', function (e) {
+    var btn = e.target.closest('.seg-btn');
+    if (!btn) return;
+    this.querySelectorAll('.seg-btn').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  });
+
+  // Charts
+  var charts = [];
+  if (!window.echarts) {
+    document.querySelectorAll('.chart').forEach(function (el) {
+      el.innerHTML = '<div class="chart-error">图表库加载失败，请检查网络后刷新</div>';
+    });
+    return;
+  }
+
+  var C = {
+    primary: '#10B981', info: '#3B82F6', warning: '#F59E0B',
+    danger: '#EF4444', axis: '#2A2F3D', split: '#1F2330',
+    text3: '#5C6373', text2: '#9CA3B4', track: '#1F2330'
+  };
+  var FONT = 'Inter, PingFang SC, Microsoft YaHei, sans-serif';
+  var MONO = 'JetBrains Mono, Consolas, monospace';
+
+  function tooltip() {
+    return {
+      backgroundColor: '#161A24',
+      borderColor: '#262B3A',
+      borderWidth: 1,
+      padding: [8, 12],
+      textStyle: { color: '#F4F6F8', fontSize: 12, fontFamily: FONT },
+      extraCssText: 'border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.4);'
+    };
+  }
+
+  // 24h trend
+  var trendChart = echarts.init(document.getElementById('trendChart'));
+  charts.push(trendChart);
+  trendChart.setOption({
+    animationDuration: 600,
+    animationEasing: 'cubicOut',
+    legend: {
+      top: 0, right: 0, icon: 'circle', itemWidth: 8, itemHeight: 8, itemGap: 16,
+      textStyle: { color: C.text2, fontSize: 12, fontFamily: FONT }
+    },
+    tooltip: Object.assign(tooltip(), {
+      trigger: 'axis',
+      axisPointer: { type: 'line', lineStyle: { color: C.axis } },
+      valueFormatter: function (v) { return v + ' kWh'; }
+    }),
+    grid: { left: 6, right: 10, top: 36, bottom: 2, containLabel: true },
+    xAxis: {
+      type: 'category', boundaryGap: false,
+      data: Array.from({ length: 24 }, function (_, i) { return pad(i) + ':00'; }),
+      axisLine: { lineStyle: { color: C.axis } },
+      axisTick: { show: false },
+      axisLabel: { color: C.text3, fontSize: 10, fontFamily: MONO, interval: 2 }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false }, axisTick: { show: false },
+      splitLine: { lineStyle: { color: C.split } },
+      axisLabel: { color: C.text3, fontSize: 10, fontFamily: MONO }
+    },
+    series: [
+      {
+        name: '今日', type: 'line', smooth: 0.35, symbol: 'none',
+        lineStyle: { width: 2, color: C.primary },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(16,185,129,0.2)' },
+            { offset: 1, color: 'rgba(16,185,129,0)' }
+          ])
+        },
+        data: [142,118,96,88,92,145,268,412,536,618,655,682,540,596,648,672,638,585,492,406,342,286,224,168]
+      },
+      {
+        name: '昨日', type: 'line', smooth: 0.35, symbol: 'none',
+        lineStyle: { width: 1.5, type: 'dashed', color: '#5C6373', opacity: 0.9 },
+        data: [138,112,102,90,95,152,255,398,512,595,640,655,525,570,615,650,612,560,470,390,330,270,215,160]
+      }
+    ]
+  });
+
+  // Weekly bars (stacked day / night shift)
+  var weekChart = echarts.init(document.getElementById('weekChart'));
+  charts.push(weekChart);
+  weekChart.setOption({
+    animationDuration: 600,
+    animationEasing: 'cubicOut',
+    legend: {
+      top: 0, right: 0, icon: 'circle', itemWidth: 8, itemHeight: 8, itemGap: 16,
+      textStyle: { color: C.text2, fontSize: 12, fontFamily: FONT }
+    },
+    tooltip: Object.assign(tooltip(), {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(255,255,255,0.04)' } },
+      valueFormatter: function (v) { return v + ' kWh'; }
+    }),
+    grid: { left: 6, right: 10, top: 36, bottom: 2, containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+      axisLine: { lineStyle: { color: C.axis } },
+      axisTick: { show: false },
+      axisLabel: { color: C.text3, fontSize: 11, fontFamily: FONT }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false }, axisTick: { show: false },
+      splitLine: { lineStyle: { color: C.split } },
+      axisLabel: { color: C.text3, fontSize: 10, fontFamily: MONO }
+    },
+    series: [
+      {
+        name: '白班', type: 'bar', stack: 'total', barWidth: 16,
+        itemStyle: { color: C.primary, borderRadius: [0, 0, 0, 0] },
+        data: [2860, 3120, 2980, 3240, 3080, 1560, 1240]
+      },
+      {
+        name: '夜班', type: 'bar', stack: 'total', barWidth: 16,
+        itemStyle: { color: C.info, borderRadius: [4, 4, 0, 0] },
+        data: [940, 880, 1020, 960, 890, 420, 380]
+      }
+    ]
+  });
+
+  // Energy-saving ring
+  var gaugeChart = echarts.init(document.getElementById('gaugeChart'));
+  charts.push(gaugeChart);
+  gaugeChart.setOption({
+    animationDuration: 800,
+    animationEasing: 'cubicOut',
+    title: {
+      text: '23.6%',
+      subtext: '超出目标 3.6pp',
+      left: 'center', top: '30%',
+      textStyle: { fontSize: 30, fontWeight: 700, fontFamily: MONO, color: '#F4F6F8' },
+      subtextStyle: { fontSize: 11, color: C.text3, fontFamily: FONT }
+    },
+    series: [{
+      type: 'pie',
+      radius: ['76%', '92%'],
+      center: ['50%', '44%'],
+      startAngle: 90,
+      clockwise: true,
+      silent: true,
+      label: { show: false },
+      labelLine: { show: false },
+      data: [
+        { value: 100, itemStyle: { color: C.track } },
+        { value: 23.6, itemStyle: { color: C.primary, borderRadius: 24 } }
+      ]
+    }]
+  });
+
+  // Responsive resize
+  var timer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      charts.forEach(function (c) { c.resize(); });
+    }, 120);
+  });
+})();
+</script>
+</body>
+</html>

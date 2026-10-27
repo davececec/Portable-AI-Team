@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#F7F8FA">
+<title>Shopeers UI Design Standard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./shopeers-ui.css">
+<script src="./echarts.min.js"></script>
+<script src="./shopeers-echarts-theme.js"></script>
+<style>
+.standard-sidebar {
+  width: var(--sidebar-width);
+}
+
+.standard-brand {
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.standard-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+  box-shadow: var(--shadow-primary);
+}
+
+.standard-logo svg { width: 16px; height: 16px; }
+
+.standard-brand-text { font-size: 16px; font-weight: 700; letter-spacing: -.02em; }
+.standard-brand-tag {
+  margin-left: auto;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.standard-nav { padding: 12px; }
+.standard-nav a { display: block; padding: 9px 10px; border-radius: 10px; }
+.standard-main { min-height: 100vh; }
+
+.standard-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 32px;
+  background: rgba(255, 255, 255, .94);
+  border-bottom: 1px solid var(--border);
+}
+
+.breadcrumb { color: var(--text-3); font-size: 13px; font-weight: 500; }
+.breadcrumb strong { color: var(--text-1); font-weight: 600; }
+
+.standard-content {
+  width: 100%;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 48px 32px 96px;
+}
+
+.hero {
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hero h1 {
+  margin: 18px 0 10px;
+  font-size: 38px;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -.045em;
+  color: var(--text-1);
+}
+
+.hero p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.hero-actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+
+.principles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.principle {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: #fff;
+}
+
+.principle .s-icon-chip { margin-bottom: 12px; }
+.principle h3 { margin: 0 0 5px; font-size: 14px; font-weight: 600; }
+.principle p { margin: 0; color: var(--text-3); font-size: 12px; line-height: 1.6; }
+
+.section {
+  margin-top: 64px;
+  scroll-margin-top: 84px;
+}
+
+.section-head { margin-bottom: 24px; }
+.section-eyebrow {
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.section-title {
+  margin: 8px 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -.03em;
+}
+.section-desc { max-width: 720px; color: var(--text-2); font-size: 14px; line-height: 1.6; }
+
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.swatch {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.swatch-color { height: 64px; border-bottom: 1px solid var(--border); }
+.swatch-info { padding: 11px 12px; }
+.swatch-name { font-size: 12px; font-weight: 600; color: var(--text-1); }
+.swatch-value { margin-top: 3px; color: var(--text-3); font-size: 11px; font-family: "JetBrains Mono", monospace; }
+
+.token-groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.token-panel { padding: 18px; border: 1px solid var(--border); border-radius: 16px; background: #fff; }
+.token-panel h3 { margin: 0 0 14px; font-size: 14px; font-weight: 600; }
+.token-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; }
+.token-row + .token-row { border-top: 1px solid var(--border); }
+.token-label { color: var(--text-2); font-size: 12px; }
+.token-sample { color: var(--text-1); font-size: 12px; font-weight: 600; font-family: "JetBrains Mono", monospace; }
+.spacing-sample { width: 72px; height: 12px; background: var(--primary-soft-2); border-radius: 4px; }
+.radius-sample { width: 64px; height: 32px; background: var(--primary-soft); }
+.shadow-sample { width: 56px; height: 32px; border-radius: 8px; background: #fff; border: 1px solid var(--border); }
+
+.type-table {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+}
+.type-row {
+  display: grid;
+  grid-template-columns: 150px 230px 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.type-row:last-child { border-bottom: 0; }
+.type-meta b { display: block; font-size: 13px; color: var(--text-1); }
+.type-meta span { color: var(--text-3); font-size: 11px; }
+.type-sample { color: var(--text-1); }
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.demo-panel {
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+}
+.demo-panel > h3 {
+  margin: 0 0 16px;
+  color: var(--text-1);
+  font-size: 14px;
+  font-weight: 600;
+}
+.demo-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.demo-row + .demo-row { margin-top: 14px; }
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+}
+.chart-card { min-height: 300px; }
+.chart-container { height: 250px; }
+.chart-note { padding: 16px 20px 20px; }
+
+.chart-spec {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 18px;
+}
+.chart-spec div { min-width: 0; }
+.chart-spec b { display: block; font-size: 12px; color: var(--text-1); margin-bottom: 2px; }
+.chart-spec span { font-size: 11px; color: var(--text-3); }
+
+.responsive-table {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+}
+.responsive-table table { width: 100%; border-collapse: collapse; }
+.responsive-table th {
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.responsive-table td {
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: 13px;
+}
+.responsive-table tr:last-child td { border-bottom: 0; }
+
+.code-card {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: #FCFCFD;
+}
+.code-head b { font-size: 13px; color: var(--text-1); }
+pre {
+  margin: 0;
+  max-height: 420px;
+  overflow: auto;
+  padding: 18px 20px;
+  background: #fff;
+  color: #24303E;
+  font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.7;
+}
+footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-3); font-size: 12px; }
+
+.sidebar-toggle { display: none; }
+
+@media (max-width: 1080px) {
+  .principles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .token-groups { grid-template-columns: 1fr; }
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 860px) {
+  .standard-sidebar {
+    transform: translateX(-100%);
+    transition: transform .22s ease;
+  }
+  .standard-sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+  .standard-main { margin-left: 0; }
+  .standard-topbar { padding: 0 18px; }
+  .standard-content { padding: 28px 18px 72px; }
+  .hero h1 { font-size: 31px; }
+  .sidebar-toggle { display: inline-flex; }
+  .demo-grid { grid-template-columns: 1fr; }
+  .principles { grid-template-columns: 1fr; }
+  .swatch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .type-row { grid-template-columns: 1fr; gap: 8px; }
+}
+</style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l8 4.5-8 4.5-8-4.5L12 3z"/><path d="M4 12l8 4.5 8-4.5"/><path d="M4 16.5L12 21l8-4.5"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="9" cy="10" r="1.2"/><circle cx="15" cy="10" r="1.2"/><circle cx="10.5" cy="15" r="1.2"/></symbol>
+  <symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7h16M9 7v11M15 7v11"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5-8 4.5-8-4.5L12 3z"/><path d="M4 12l8 4.5 8-4.5"/><path d="M4 16.5L12 21l8-4.5"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M7 20V10M12 20V5M17 20v-7"/></symbol>
+  <symbol id="i-devices" viewBox="0 0 24 24"><rect x="2.5" y="5" width="14" height="10" rx="2"/><path d="M7 19h6"/><path d="M10 15v4"/><rect x="17.5" y="10" width="4" height="9" rx="1.4"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4"/><path d="M16 8l4 4-4 4"/><path d="M13.5 5l-3 14"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.7-3 2.8-4.8 5.5-4.8s4.8 1.8 5.5 4.8"/><path d="M16 5.5a3.2 3.2 0 010 6"/><path d="M17.8 19.5c-.2-1.4-.7-2.6-1.5-3.5"/></symbol>
+  <symbol id="i-click" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.5 6.5l2.5 2.5M15 15l2.5 2.5M17.5 6.5L15 9M9 15l-2.5 2.5"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2.4 10.4A2 2 0 009.35 16h7.1a2 2 0 001.96-1.53L20 8H6"/><circle cx="9.5" cy="19.5" r="1.5"/><circle cx="17" cy="19.5" r="1.5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 8"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5l7 2.4v5.5c0 4.3-2.8 7.4-7 9-4.2-1.6-7-4.7-7-9V5.9L12 3.5z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 5.5A2.5 2.5 0 0012.5 3H6.5A2.5 2.5 0 004 5.5v6A2.5 2.5 0 008.5 14"/></symbol>
+</svg>
+
+<aside class="s-sidebar standard-sidebar" id="standardSidebar">
+  <div class="standard-brand">
+    <div class="standard-logo"><svg><use href="#i-spark"/></svg></div>
+    <span class="standard-brand-text">Shopeers UI</span>
+    <span class="standard-brand-tag">v1.0</span>
+  </div>
+  <nav class="s-nav standard-nav s-scrollbar">
+    <a class="s-nav-link active" href="#principles"><svg><use href="#i-layers"/></svg>设计原则</a>
+    <a class="s-nav-link" href="#color"><svg><use href="#i-palette"/></svg>色彩</a>
+    <a class="s-nav-link" href="#typography"><svg><use href="#i-type"/></svg>字体</a>
+    <a class="s-nav-link" href="#layout"><svg><use href="#i-grid"/></svg>布局与形状</a>
+    <a class="s-nav-link" href="#components"><svg><use href="#i-box"/></svg>组件</a>
+    <a class="s-nav-link" href="#charts"><svg><use href="#i-chart"/></svg>图表</a>
+    <a class="s-nav-link" href="#responsive"><svg><use href="#i-devices"/></svg>响应式</a>
+    <a class="s-nav-link" href="#tokens"><svg><use href="#i-code"/></svg>设计令牌</a>
+  </nav>
+</aside>
+
+<main class="s-main standard-main">
+  <header class="standard-topbar">
+    <button class="s-icon-btn sidebar-toggle" id="sidebarToggle" aria-label="Open navigation"><svg><use href="#i-menu"/></svg></button>
+    <div class="breadcrumb">Design system / <strong>Analytics UI</strong></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <button class="s-btn s-btn-secondary" data-copy-target="#tokensCode"><svg><use href="#i-copy"/></svg>Copy tokens</button>
+      <button class="s-icon-btn" aria-label="Search"><svg><use href="#i-search"/></svg></button>
+      <div class="s-avatar">S</div>
+    </div>
+  </header>
+
+  <div class="standard-content">
+    <header class="hero">
+      <span class="hero-pill s-pill s-pill-primary">Light SaaS Design Language</span>
+      <h1>Shopeers 电商数据分析设计标准</h1>
+      <p>这是一套以清晰层级、柔和阴影和高密度数据表达为核心的 SaaS 界面规范。适合用作分析后台、订单管理、客户增长和商业报表类页面，也可直接复用到其他 Web 产品中。</p>
+      <div class="hero-actions">
+        <button class="s-btn s-btn-primary" data-copy-target="#tokensCode"><svg><use href="#i-copy"/></svg>Copy design tokens</button>
+        <a class="s-btn s-btn-secondary" href="#components">Browse components</a>
+      </div>
+
+      <div class="principles">
+        <article class="principle">
+          <div class="s-icon-chip s-icon-chip--primary"><svg><use href="#i-eye"/></svg></div>
+          <h3>Clarity first</h3>
+          <p>用留白、层级和颜色区分信息优先级，避免装饰干扰数据。</p>
+        </article>
+        <article class="principle">
+          <div class="s-icon-chip s-icon-chip--success"><svg><use href="#i-users"/></svg></div>
+          <h3>Human SaaS</h3>
+          <p>浅色中性底、低饱和色块和小圆角让界面显得可信且轻盈。</p>
+        </article>
+        <article class="principle">
+          <div class="s-icon-chip s-icon-chip--warning"><svg><use href="#i-chart"/></svg></div>
+          <h3>Data density</h3>
+          <p>表格、图表和 KPI 都保持紧凑，但每个区块仍然有呼吸感。</p>
+        </article>
+        <article class="principle">
+          <div class="s-icon-chip s-icon-chip--warning"><svg><use href="#i-shield"/></svg></div>
+          <h3>Quiet motion</h3>
+          <p>只使用 0.2 秒级别的轻量过渡，不做弹跳、发光或复杂特效。</p>
+        </article>
+      </div>
+    </header>
+
+    <section class="section" id="principles">
+      <div class="section-head">
+        <div class="section-eyebrow">Layout</div>
+        <h2 class="section-title">页面结构</h2>
+        <p class="section-desc">整体采用「固定侧边导航 + 吸顶工具栏 + 滚动内容区」的结构。主内容不超过 1440px，卡片之间统一 16px 间距。</p>
+      </div>
+      <div class="demo-panel">
+        <div class="chart-spec">
+          <div><b>侧边栏宽度</b><span>Desktop 244px，中屏收窄为 icon rail，移动端改为抽屉。</span></div>
+          <div><b>顶栏高度</b><span>64px，sticky，带 1px 底部边框。</span></div>
+          <div><b>内容区</b><span>左右内边距 24px，最大宽度 1440px。</span></div>
+          <div><b>模块间距</b><span>卡片间 16px，区块标题下 20-24px。</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="color">
+      <div class="section-head">
+        <div class="section-eyebrow">Color</div>
+        <h2 class="section-title">色彩系统</h2>
+        <p class="section-desc">主界面以中性浅灰和白色为主，品牌蓝只用于关键操作和选中态。状态色成对使用：实色用于小元素，柔和色用于标签与背景。</p>
+      </div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#F7F8FA"></div><div class="swatch-info"><div class="swatch-name">Background</div><div class="swatch-value">#F7F8FA</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FFFFFF"></div><div class="swatch-info"><div class="swatch-name">Surface</div><div class="swatch-value">#FFFFFF</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#ECEEF2"></div><div class="swatch-info"><div class="swatch-name">Border</div><div class="swatch-value">#ECEEF2</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2563EB"></div><div class="swatch-info"><div class="swatch-name">Primary</div><div class="swatch-value">#2563EB</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#EAF1FE"></div><div class="swatch-info"><div class="swatch-name">Primary Soft</div><div class="swatch-value">#EAF1FE</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#101828"></div><div class="swatch-info"><div class="swatch-name">Text Primary</div><div class="swatch-value">#101828</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#475467"></div><div class="swatch-info"><div class="swatch-name">Text Secondary</div><div class="swatch-value">#475467</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#98A2B3"></div><div class="swatch-info"><div class="swatch-name">Text Tertiary</div><div class="swatch-value">#98A2B3</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#12B76A"></div><div class="swatch-info"><div class="swatch-name">Success</div><div class="swatch-value">#12B76A</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F79009"></div><div class="swatch-info"><div class="swatch-name">Warning</div><div class="swatch-value">#F79009</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F04438"></div><div class="swatch-info"><div class="swatch-name">Danger</div><div class="swatch-value">#F04438</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F0F2F5"></div><div class="swatch-info"><div class="swatch-name">Track</div><div class="swatch-value">#F0F2F5</div></div></div>
+      </div>
+    </section>
+
+    <section class="section" id="typography">
+      <div class="section-head">
+        <div class="section-eyebrow">Typography</div>
+        <h2 class="section-title">字体与层级</h2>
+        <p class="section-desc">界面以 Inter 为主。数字建议开启 tabular-nums，让增长值和表格数据在滚动或更新时保持稳定对齐。</p>
+      </div>
+      <div class="type-table">
+        <div class="type-row">
+          <div class="type-meta"><b>Display</b><span>38px / 800 / -4.5%</span></div>
+          <div class="type-sample" style="font-size:34px;font-weight:800;letter-spacing:-.04em;line-height:1.1">Analytics</div>
+          <div class="type-meta"><span>用于页面主标题或关键成果展示，通常只在一屏出现一次。</span></div>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>Page title</b><span>22px / 700 / -2%</span></div>
+          <div class="type-sample" style="font-size:22px;font-weight:700;letter-spacing:-.02em">Dashboard</div>
+          <div class="type-meta"><span>用于页面标题和重要模块标题。</span></div>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>Section title</b><span>16px / 600</span></div>
+          <div class="type-sample" style="font-size:16px;font-weight:600">Total Profit</div>
+          <div class="type-meta"><span>用于卡片标题、面板标题。</span></div>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>Body</b><span>14px / 400-500</span></div>
+          <div class="type-sample">Orders, customers and revenue overview for the selected period.</div>
+          <div class="type-meta"><span>默认正文与描述。</span></div>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>Label</b><span>13px / 500</span></div>
+          <div class="type-sample" style="font-size:13px;font-weight:500;color:var(--text-2)">Page Views</div>
+          <div class="type-meta"><span>用于表单标签、KPI 名称和辅助导航。</span></div>
+        </div>
+        <div class="type-row">
+          <div class="type-meta"><b>Meta</b><span>11px / 500</span></div>
+          <div class="type-sample" style="font-size:11px;color:var(--text-3)">vs. 14,369 last period</div>
+          <div class="type-meta"><span>用于说明、时间、表格表头和弱化信息。</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="layout">
+      <div class="section-head">
+        <div class="section-eyebrow">Shape</div>
+        <h2 class="section-title">间距、圆角与阴影</h2>
+        <p class="section-desc">圆角保持现代但不夸张，卡片为 16px，控件为 8-10px。阴影只做轻微托底，不制造厚重投影或霓虹效果。</p>
+      </div>
+      <div class="token-groups">
+        <div class="token-panel">
+          <h3>Spacing</h3>
+          <div class="token-row"><span class="token-label">4 / 8 / 12 / 16 / 20 / 24 / 32 / 40</span><div class="spacing-sample" style="width:96px"></div></div>
+          <div class="token-row"><span class="token-label">Card padding</span><span class="token-sample">20px</span></div>
+          <div class="token-row"><span class="token-label">Card gap</span><span class="token-sample">16px</span></div>
+          <div class="token-row"><span class="token-label">Page padding</span><span class="token-sample">24px</span></div>
+        </div>
+        <div class="token-panel">
+          <h3>Radius</h3>
+          <div class="token-row"><span class="token-label">Control</span><div class="radius-sample" style="border-radius:8px"></div></div>
+          <div class="token-row"><span class="token-label">Nav / chip</span><div class="radius-sample" style="border-radius:10px"></div></div>
+          <div class="token-row"><span class="token-label">Card</span><div class="radius-sample" style="border-radius:16px"></div></div>
+          <div class="token-row"><span class="token-label">Full</span><div class="radius-sample" style="border-radius:999px;height:20px"></div></div>
+        </div>
+        <div class="token-panel">
+          <h3>Shadow</h3>
+          <div class="token-row"><span class="token-label">Card rest</span><div class="shadow-sample"></div></div>
+          <div class="token-row"><span class="token-label">Card hover</span><div class="shadow-sample" style="box-shadow:var(--shadow-md)"></div></div>
+          <div class="token-row"><span class="token-label">Overlay</span><div class="shadow-sample" style="box-shadow:var(--shadow-lg)"></div></div>
+          <div class="token-row"><span class="token-label">Primary button</span><div class="shadow-sample" style="box-shadow:var(--shadow-primary);border-color:var(--primary)"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="components">
+      <div class="section-head">
+        <div class="section-eyebrow">Components</div>
+        <h2 class="section-title">核心组件</h2>
+        <p class="section-desc">组件使用统一的高度、圆角与状态反馈。以下示例都是可扩展的基础样式，覆盖按钮、标签、输入、进度、表格和 KPI。</p>
+      </div>
+
+      <div class="demo-grid">
+        <div class="demo-panel">
+          <h3>Buttons</h3>
+          <div class="demo-row">
+            <button class="s-btn s-btn-primary">Export report</button>
+            <button class="s-btn s-btn-secondary">Add widget</button>
+            <button class="s-btn s-btn-soft">New order</button>
+            <button class="s-btn s-btn-ghost">Cancel</button>
+          </div>
+          <div class="demo-row">
+            <button class="s-btn s-btn-secondary s-btn-sm">Small</button>
+            <button class="s-btn s-btn-primary">Default</button>
+            <button class="s-btn s-btn-primary s-btn-lg">Large</button>
+            <button class="s-icon-btn" aria-label="Refresh"><svg><use href="#i-check"/></svg></button>
+          </div>
+        </div>
+
+        <div class="demo-panel">
+          <h3>Status & badges</h3>
+          <div class="demo-row">
+            <span class="s-pill s-pill-success">+15.5%</span>
+            <span class="s-pill s-pill-danger">-12.5%</span>
+            <span class="s-pill s-pill-warning">Pending</span>
+            <span class="s-pill s-pill-primary">Paid</span>
+            <span class="s-pill s-pill-neutral">Draft</span>
+          </div>
+          <div class="demo-row">
+            <span class="s-badge">46</span>
+            <span class="s-badge" style="background:var(--danger-soft);color:var(--danger-deep)">3</span>
+            <span class="s-dot"></span><span class="s-dot s-dot--success"></span><span class="s-dot s-dot--warning"></span><span class="s-dot s-dot--danger"></span>
+          </div>
+        </div>
+
+        <div class="demo-panel">
+          <h3>Inputs</h3>
+          <label class="s-field-label" for="standardInput">Email</label>
+          <input id="standardInput" class="s-input" type="email" placeholder="name@example.com">
+          <div style="height:12px"></div>
+          <div class="s-search">
+            <svg><use href="#i-search"/></svg>
+            <input type="text" placeholder="Search anything...">
+          </div>
+          <p class="s-field-help">Focus 状态使用 3px 主色外发光，仅用于可输入元素。</p>
+        </div>
+
+        <div class="demo-panel">
+          <h3>Tabs & progress</h3>
+          <div class="s-tabs">
+            <button class="s-tab active">Overview</button>
+            <button class="s-tab">Orders</button>
+            <button class="s-tab">Customers</button>
+          </div>
+          <div style="height:18px"></div>
+          <div class="s-progress"><span class="s-progress-fill" style="width:68%"></span></div>
+          <div style="height:10px"></div>
+          <div class="s-progress s-progress--success"><span class="s-progress-fill" style="width:42%"></span></div>
+          <div style="height:10px"></div>
+          <div class="s-progress s-progress--warning"><span class="s-progress-fill" style="width:24%"></span></div>
+        </div>
+      </div>
+
+      <div class="demo-grid" style="margin-top:16px">
+        <div class="demo-panel">
+          <h3>Table</h3>
+          <div style="margin:0 -22px -22px;overflow:hidden">
+            <table class="s-table">
+              <thead><tr><th>ID</th><th>Name</th><th>Sold</th><th>Revenue</th></tr></thead>
+              <tbody>
+                <tr><td class="s-text-subtle">#10309</td><td>Hybrid Active Noise Cance...</td><td class="num">2,310</td><td class="num" style="color:var(--success-deep);font-weight:600">$124,639</td></tr>
+                <tr><td class="s-text-subtle">#10301</td><td>Casio G-Shock Shock Resi...</td><td class="num">1,230</td><td class="num" style="color:var(--success-deep);font-weight:600">$82,462</td></tr>
+                <tr><td class="s-text-subtle">#10304</td><td>SAMSUNG Galaxy S25 Ult...</td><td class="num">812</td><td class="num" style="color:var(--success-deep);font-weight:600">$74,048</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="demo-panel">
+          <h3>KPI card</h3>
+          <div style="margin:-6px -6px -6px">
+            <div class="s-card s-stat">
+              <div class="s-stat-top">
+                <div>
+                  <div class="s-stat-label">Page Views</div>
+                  <div class="s-stat-value num" style="margin-top:12px">16,431</div>
+                </div>
+                <div class="s-icon-chip"><svg><use href="#i-eye"/></svg></div>
+              </div>
+              <div class="s-stat-footer">
+                <span class="s-pill s-pill-success">+15.5%</span>
+                <span class="s-stat-note">vs. 14,369 last period</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="charts">
+      <div class="section-head">
+        <div class="section-eyebrow">Data visualization</div>
+        <h2 class="section-title">图表语言</h2>
+        <p class="section-desc">ECharts 使用透明背景，图表底色由卡片承担。面积图只用主色低透明度，柱状图圆角 4px，工具提示保持轻量。</p>
+      </div>
+      <div class="chart-grid">
+        <div class="s-card chart-card">
+          <div class="s-card-header">
+            <div><h3 class="s-card-title">Total Profit</h3><p class="s-card-subtitle">This period vs. last period</p></div>
+            <button class="s-icon-btn"><svg><use href="#i-eye"/></svg></button>
+          </div>
+          <div class="s-card-body chart-container" id="lineChart"></div>
+        </div>
+        <div class="s-card chart-card">
+          <div class="s-card-header">
+            <div><h3 class="s-card-title">Most Day Active</h3><p class="s-card-subtitle">Weekly peak</p></div>
+            <button class="s-icon-btn"><svg><use href="#i-eye"/></svg></button>
+          </div>
+          <div class="s-card-body chart-container" id="barChart"></div>
+        </div>
+      </div>
+      <div class="chart-note demo-panel" style="margin-top:16px">
+        <div class="chart-spec">
+          <div><b>Area fill</b><span>主色 16% 到 0 的垂直渐变。</span></div>
+          <div><b>Line</b><span>2px，圆头，轻微平滑，默认隐藏圆点。</span></div>
+          <div><b>Bar</b><span>最大宽度 18px，顶部圆角 4px。</span></div>
+          <div><b>Axis label</b><span>11px / #98A2B3 / 500。</span></div>
+          <div><b>Split line</b><span>#ECEEF2，实线，不加粗。</span></div>
+          <div><b>Tooltip</b><span>白底，1px 边框，圆角 10px，轻阴影。</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="responsive">
+      <div class="section-head">
+        <div class="section-eyebrow">Responsive</div>
+        <h2 class="section-title">响应式规则</h2>
+        <p class="section-desc">大屏优先保持数据密度，中屏折叠导航，移动端不硬塞桌面表格，而是按内容优先级堆叠。</p>
+      </div>
+      <div class="responsive-table">
+        <table>
+          <thead><tr><th>Breakpoint</th><th>Layout</th><th>Recommended behavior</th></tr></thead>
+          <tbody>
+            <tr><td class="num">≥1280px</td><td>4 columns</td><td>完整侧边栏，KPI 四列，主图表占 2/3 宽度。</td></tr>
+            <tr><td class="num">1024-1279px</td><td>2-3 columns</td><td>侧边栏收成 icon rail，KPI 仍可保持 2-4 列。</td></tr>
+            <tr><td class="num">768-1023px</td><td>2 columns</td><td>侧边栏改抽屉，卡片 2 列，表格可横向滚动。</td></tr>
+            <tr><td class="num">&lt;768px</td><td>1 column</td><td>KPI 堆叠，筛选器收起，操作按钮变成整行。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="tokens">
+      <div class="section-head">
+        <div class="section-eyebrow">Implementation</div>
+        <h2 class="section-title">设计令牌</h2>
+        <p class="section-desc">把下面的 CSS Variables 直接放进项目根样式，或引用当前目录里的 <code>shopeers-ui.css</code>。ECharts 可引入 <code>shopeers-echarts-theme.js</code> 并注册 <code>shopeers</code> 主题。</p>
+      </div>
+      <div class="code-card">
+        <div class="code-head"><b>:root design tokens</b><button class="s-btn s-btn-secondary s-btn-sm" data-copy-target="#tokensCode"><svg><use href="#i-copy"/></svg>Copy</button></div>
+<pre id="tokensCode"><code>:root{
+  /* Surface */
+  --bg:#F7F8FA;
+  --surface:#FFFFFF;
+  --surface-muted:#F9FAFB;
+  --surface-hover:#F4F6F9;
+  --track:#F0F2F5;
+  --border:#ECEEF2;
+  --border-strong:#E4E7EC;
+
+  /* Text */
+  --text-1:#101828;
+  --text-2:#475467;
+  --text-3:#98A2B3;
+  --text-4:#667085;
+
+  /* Brand */
+  --primary:#2563EB;
+  --primary-hover:#1D4ED8;
+  --primary-active:#1949C0;
+  --primary-soft:#EAF1FE;
+  --primary-soft-2:#DCE9FD;
+
+  /* Status */
+  --success:#12B76A;
+  --success-deep:#067647;
+  --success-soft:#ECFDF3;
+  --warning:#F79009;
+  --warning-deep:#B54708;
+  --warning-soft:#FFF6E6;
+  --danger:#F04438;
+  --danger-deep:#B42318;
+  --danger-soft:#FEF3F2;
+  --info:#3B82F6;
+  --info-soft:#EFF6FF;
+
+  /* Chart palette */
+  --chart-1:#2563EB;
+  --chart-2:#12B76A;
+  --chart-3:#F79009;
+  --chart-4:#F04438;
+  --chart-5:#7C3AED;
+  --chart-6:#06B6D4;
+
+  /* Typography */
+  --font-sans:"Inter",system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  --text-xs:11px;
+  --text-sm:12px;
+  --text-md:13px;
+  --text-base:14px;
+  --text-lg:15px;
+  --text-xl:18px;
+  --text-2xl:20px;
+  --text-3xl:26px;
+  --text-4xl:32px;
+
+  /* Layout */
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:16px;
+  --space-5:20px;
+  --space-6:24px;
+  --space-7:32px;
+  --space-8:40px;
+  --sidebar-width:244px;
+  --topbar-height:64px;
+
+  /* Radius */
+  --radius-xs:6px;
+  --radius-sm:8px;
+  --radius-md:10px;
+  --radius-lg:12px;
+  --radius-xl:16px;
+  --radius-2xl:20px;
+  --radius-full:999px;
+
+  /* Shadow */
+  --shadow-xs:0 1px 2px rgba(16,24,40,.05);
+  --shadow-sm:0 2px 4px -1px rgba(16,24,40,.06);
+  --shadow-md:0 4px 12px -2px rgba(16,24,40,.08);
+  --shadow-lg:0 12px 28px -8px rgba(16,24,40,.16);
+  --shadow-primary:0 4px 12px -3px rgba(37,99,235,.45);
+
+  /* Motion */
+  --transition-fast:150ms cubic-bezier(.4,0,.2,1);
+  --transition:200ms cubic-bezier(.4,0,.2,1);
+}</code></pre>
+      </div>
+    </section>
+
+    <footer>Shopeers UI Design Standard · Built for clean SaaS analytics interfaces.</footer>
+  </div>
+</main>
+
+<script>
+  // charts
+  if (window.echarts && window.SHOPEERS_CHART_THEME) {
+    window.SHOPEERS_CHART_THEME.register(echarts);
+
+    const line = echarts.init(document.getElementById("lineChart"), "shopeers");
+    line.setOption({
+      grid: { left: 4, right: 10, top: 24, bottom: 0, containLabel: true },
+      legend: { right: 0, top: 0, itemGap: 16, data: ["This period", "Last period"] },
+      xAxis: { type: "category", boundaryGap: false, data: ["1 Jan","5 Jan","9 Jan","13 Jan","17 Jan","21 Jan","25 Jan","29 Jan"] },
+      yAxis: { type: "value", splitNumber: 4, max: 15000, axisLabel: { formatter: value => value / 1000 + "k" } },
+      series: [
+        { name: "This period", type: "line", data: [7200,8600,7900,9200,8400,10800,10100,12400], areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset:0,color:"rgba(37,99,235,.16)"},{offset:1,color:"rgba(37,99,235,0)"}] } } },
+        { name: "Last period", type: "line", data: [5400,6200,5800,7100,6600,7900,8600,9200], lineStyle: { width: 1.6, type: [4,4], color: "#D0D5DD" }, itemStyle: { color: "#D0D5DD" }, symbol: "none" }
+      ]
+    });
+
+    const bar = echarts.init(document.getElementById("barChart"), "shopeers");
+    bar.setOption({
+      grid: { left: 4, right: 6, top: 30, bottom: 0, containLabel: true },
+      xAxis: { type: "category", data: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"] },
+      yAxis: { type: "value", show: false },
+      series: [{
+        type: "bar",
+        data: [4200,5600,{value:8162,itemStyle:{color:"#2563EB"}},5400,6400,5200,4600],
+        barWidth: 20,
+        itemStyle: { borderRadius: [5,5,0,0], color: "#D0D5DD" }
+      }]
+    });
+
+    window.addEventListener("resize", () => { line.resize(); bar.resize(); });
+  }
+
+  // mobile sidebar
+  const sidebar = document.getElementById("standardSidebar");
+  document.getElementById("sidebarToggle").addEventListener("click", () => sidebar.classList.toggle("open"));
+  document.querySelectorAll(".standard-nav a").forEach(link => link.addEventListener("click", () => sidebar.classList.remove("open")));
+
+  // copy tokens
+  document.querySelectorAll("[data-copy-target]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const text = document.querySelector(button.dataset.copyTarget)?.innerText || "";
+      try { await navigator.clipboard.writeText(text); button.classList.add("copied"); setTimeout(() => button.classList.remove("copied"), 500); } catch (e) {}
+    });
+  });
+</script>
+</body>
+</html>

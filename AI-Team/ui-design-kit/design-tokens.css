@@ -1,0 +1,140 @@
+/* =====================================================
+   Shopeers 设计 Tokens —— 亮/暗双主题
+   用法：本文件放到项目后 <link rel="stylesheet" href="./design-tokens.css">
+   默认亮屏；给 <html data-theme="dark"> 切暗屏。
+   ===================================================== */
+
+:root {
+  /* 明暗无关的固定值 */
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --sidebar-width: 244px;
+  --topbar-h: 64px;
+  --gap: 16px;
+  --pad: 24px;
+
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 13px;
+  --text-base: 14px;
+  --text-lg: 15px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 26px;
+  --text-4xl: 32px;
+
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 999px;
+
+  --chart-1: #2563EB;
+  --chart-2: #12B76A;
+  --chart-3: #F79009;
+  --chart-4: #F04438;
+  --chart-5: #7C3AED;
+  --chart-6: #06B6D4;
+
+  /* ── 数据配色系统（RZNY 能源监控实践, 详见 UI-DESIGN-STANDARD.md §8）──
+     --kind-*: 属性语义色 1=耗电 2=自来水 3=压缩空气 4=制冷 5=蒸汽 6=天然气 7=生活水 8=生产水 9=纯水
+     --ws-*:   实体类别色 1=焊装 2=总装 3=整厂 4=涂装 5=冲压 6=联合站房 7=底盘 8=座椅 9=内饰 10=外饰 11=食堂办公楼 */
+  --kind-1: #00D97A;
+  --kind-2: #3B82F6;
+  --kind-3: #A78BFA;
+  --kind-4: #22D3EE;
+  --kind-5: #EF4444;
+  --kind-6: #F59E0B;
+  --kind-7: #60A5FA;
+  --kind-8: #14B8A6;
+  --kind-9: #E879F9;
+  --ws-1: #00D97A;
+  --ws-2: #22D3EE;
+  --ws-3: #3B82F6;
+  --ws-4: #A78BFA;
+  --ws-5: #F59E0B;
+  --ws-6: #EF4444;
+  --ws-7: #14B8A6;
+  --ws-8: #E879F9;
+  --ws-9: #84CC16;
+  --ws-10: #60A5FA;
+  --ws-11: #FB923C;
+  --data-neg: #F87171;  /* 负值红字 */
+
+  /* 亮屏 Light（默认） */
+  --bg: #F7F8FA;
+  --bg-raised: #FFFFFF;
+  --card: #FFFFFF;
+  --sidebar: #FFFFFF;
+  --topbar: rgba(255, 255, 255, .92);
+  --border: #ECEEF2;
+  --border-strong: #E4E7EC;
+  --track: #F0F2F5;
+
+  --text-1: #101828;
+  --text-2: #475467;
+  --text-3: #98A2B3;
+  --text-inverse: #FFFFFF;
+
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-active: #1949C0;
+  --primary-soft: #EAF1FE;
+  --primary-soft-2: #DCE9FD;
+
+  --success: #12B76A;
+  --success-deep: #067647;
+  --success-soft: #ECFDF3;
+  --warning: #F79009;
+  --warning-deep: #B54708;
+  --warning-soft: #FFF6E6;
+  --danger: #F04438;
+  --danger-deep: #B42318;
+  --danger-soft: #FEF3F2;
+  --info: #3B82F6;
+  --info-soft: #EFF6FF;
+
+  --shadow-sm: 0 2px 4px -1px rgba(16, 24, 40, .06);
+  --shadow-md: 0 4px 12px -2px rgba(16, 24, 40, .08);
+  --shadow-lg: 0 12px 28px -8px rgba(16, 24, 40, .16);
+  --shadow-primary: 0 4px 12px -3px rgba(37, 99, 235, .45);
+}
+
+html[data-theme="dark"] {
+  --bg: #0A0C10;
+  --bg-raised: #0D1017;
+  --card: #13161E;
+  --sidebar: #0D1017;
+  --topbar: #13161E;
+  --border: #1F2330;
+  --border-strong: #2A2F3D;
+  --track: #1B202B;
+
+  --text-1: #F4F6F8;
+  --text-2: #9CA3B4;
+  --text-3: #5C6373;
+  --text-inverse: #FFFFFF;
+
+  --primary: #3B82F6;
+  --primary-hover: #2563EB;
+  --primary-active: #1D4ED8;
+  --primary-soft: rgba(59, 130, 246, .14);
+  --primary-soft-2: rgba(59, 130, 246, .22);
+
+  --success: #22C55E;
+  --success-deep: #86EFAC;
+  --success-soft: rgba(34, 197, 94, .12);
+  --warning: #F59E0B;
+  --warning-deep: #FBBF24;
+  --warning-soft: rgba(245, 158, 11, .12);
+  --danger: #EF4444;
+  --danger-deep: #FCA5A5;
+  --danger-soft: rgba(239, 68, 68, .12);
+  --info: #3B82F6;
+  --info-soft: rgba(59, 130, 246, .12);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, .4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, .5);
+  --shadow-primary: 0 4px 12px -3px rgba(59, 130, 246, .5);
+}

@@ -1,0 +1,58 @@
+# Runtime state — never commit
+state/
+dist/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Sensitive configuration — real credentials must stay local only
+LLM配置.json
+
+# Local Python path (machine-specific)
+Python路径.txt
+
+# Runtime capsule state
+团队状态.json
+
+# User-generated memory content (per-machine experience)
+AI-Team/memory/*
+!AI-Team/memory/index.md
+
+# Derived cheat sheet (contains user-specific experience + credentials)
+AI-Team/团队经验速查手册.md
+
+# Internal development progress notes
+PROGRESS.md
+
+# Memory backup (local only)
+AI-Team/memory-backup-*/
+
+# Task artifacts (runtime work orders)
+AI-Team/tasks/
+
+# Test reports (runtime)
+AI-Team/test-reports/
+
+# Defect logs (runtime)
+AI-Team/defects/
+
+# Project-specific references
+AI-Team/references/
+
+# RZNY-specific design files
+AI-Team/ui-design-kit/RZNY-*
+AI-Team/ui-design-kit/design-system-demo-*/
+AI-Team/ui-design-kit/shopeers-*
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store

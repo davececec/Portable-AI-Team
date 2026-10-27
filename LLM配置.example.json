@@ -1,0 +1,25 @@
+{
+  "enabled": false,
+  "base_url": "https://your-llm-proxy.example.com/v1",
+  "api_key": "YOUR_API_KEY_HERE",
+  "models": {
+    "fast": "default/qwen38-27b",
+    "agent_b": "default/deepseek-v4-flash",
+    "balanced": "default/deepseek-v4-flash",
+    "strong": "default/glm5-3-flash",
+    "vision": "default/qwen3-vl-30b-a3b-instruct",
+    "agent_c": "default/deepseek-v4-flash",
+    "agent_d": "default/qwen38-27b"
+  },
+  "routing": {
+    "agent_b_implementation": "agent_b",
+    "agent_c_design": "agent_c",
+    "agent_c_review": "vision",
+    "test_generation": "fast",
+    "code_review": "balanced",
+    "agent_d_implementation": "agent_d"
+  },
+  "fallback": "codex_builtin",
+  "timeout_seconds": 120,
+  "max_parallel": 4
+}

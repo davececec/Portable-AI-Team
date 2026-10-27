@@ -1,0 +1,10 @@
+{
+  "team_version": "3.0.0",
+  "capsule_id": "portable-ai-team-20261010-v3",
+  "managed_marker": "portable-ai-team-managed-v1",
+  "capsule_marker": "portable-ai-team-capsule-v1",
+  "created": "2026-09-17",
+  "updated": "2026-10-10",
+  "default_mode": "balanced",
+  "distribution": "team-capsule"
+}
