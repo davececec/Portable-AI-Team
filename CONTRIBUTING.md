@@ -12,7 +12,7 @@ a development environment and submit changes.
    ```
 2. Copy `LLM配置.example.json` to `LLM配置.json` and fill in your API details.
    This file is git-ignored and will never be committed.
-3. Set `Python路径.txt` to your Python executable path (absolute or `python` if on PATH).
+3. Copy `Python路径.txt.example` to `Python路径.txt` and set it to the absolute path of your Python 3 executable.
 4. Run tests:
    ```bash
    python -m unittest discover -s tests -v

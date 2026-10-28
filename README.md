@@ -2,6 +2,8 @@
 
 **A portable, multi-agent AI coding team that lives inside a single folder.**
 
+Current release: v3.0.0
+
 [English](#english) | [中文](#中文)
 
 ---
@@ -40,7 +42,7 @@ and AgentC (on-demand designer).
 ### Quick Start
 
 1. Copy the `Portable-AI-Team/` folder to your project root.
-2. Edit `Python路径.txt` to your Python executable path.
+2. Copy `Python路径.txt.example` to `Python路径.txt`, then set it to your Python executable path.
 3. Double-click `双击启用团队.cmd` (or run `python AI-Team/capsule.py enable`).
 4. Open your IDE and say: "ZH, build me a ..."
 5. When done, double-click `双击带走团队.cmd` to carry the team away.
@@ -57,6 +59,16 @@ and AgentC (on-demand designer).
 
 Copy `LLM配置.example.json` to `LLM配置.json` and fill in your API details.
 This file is git-ignored and must never be committed.
+
+### External API Dispatch
+
+`LLM配置.json` holds the API endpoint, key, model pool, routing rules,
+timeout, and parallel limit. AgentA can dispatch independent modules to
+AgentD and AgentB in parallel (up to 4 tasks) with explicit file
+boundaries. When an external API is unavailable, times out, or returns
+an error, the result is marked as failed and falls back to
+`codex_builtin`; AgentA must re-decide instead of treating the external
+reply as acceptance.
 
 ### Testing
 
@@ -108,7 +120,7 @@ Portable AI Team 是一个可携带的多 Agent AI 编码团队框架，支持�
 ### 快速开始
 
 1. 把 `Portable-AI-Team/` 文件夹整体复制到业务项目根目录。
-2. 编辑 `Python路径.txt`，填入你的 Python 可执行文件路径。
+2. 把 `Python路径.txt.example` 复制为 `Python路径.txt`，填入你的 Python 可执行文件绝对路径。
 3. 双击 `双击启用团队.cmd`（或运行 `python AI-Team/capsule.py enable`）。
 4. 用 IDE 打开项目，说"ZH，给我做一个……"。
 5. 完成时双击 `双击带走团队.cmd`。
@@ -125,6 +137,14 @@ Portable AI Team 是一个可携带的多 Agent AI 编码团队框架，支持�
 
 把 `LLM配置.example.json` 复制为 `LLM配置.json` 并填入你的 API 信息。
 该文件已被 .gitignore 排除，绝不能提交到版本控制。
+
+### 外部 API 调度与并行派单
+
+`LLM配置.json` 定义 API 地址、密钥、模型池、路由、超时和并行上限。
+AgentA 可把互不依赖的模块按明确的文件边界并行派单给 AgentB 和 AgentD
+（最多 4 路）。外部 API 不可用、超时或返回错误时进入失败降级：
+结果标记失败并回退 `codex_builtin`，AgentA 必须重新决策，
+不能把外部模型回复当作验收结果。
 
 ### 测试
 
