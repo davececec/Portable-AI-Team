@@ -37,6 +37,7 @@ python capsule.py carry
 - `agents/`：角色职责与最小上下文流程。
 - `policies/token-budget.md`：`economy`、`balanced`、`quality` 和预算上限。
 - `policies/model-routing.md`：跨 IDE、非厂商绑定的模型路由。
+- `policies/multi-session-dispatch.md`：多会话并行调度、队列纪律和文件边界。
 - `policies/ui-routing.md`：按需 C 设计与视觉检查，纯后台及文字/颜色小改跳过。
 - `memory/index.md`：先索引后选择，每次只加载 1-3 类记忆。
 - `templates/`：微型/标准工单及紧凑交付、测试、缺陷模板。

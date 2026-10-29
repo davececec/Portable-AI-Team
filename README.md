@@ -34,6 +34,7 @@ and AgentC (on-demand designer).
 | --- | --- |
 | Cross-IDE | Codex, Google Antigravity, TraeCode (graceful degradation) |
 | Multi-agent | A (orchestrator) + B (main impl) + C (design) + D (parallel impl) |
+| Multi-session | Queue new work without interrupting unaccepted tasks; isolate files and routes |
 | Memory system | 9-category experience memory with merge and version tracking |
 | External LLM | Optional API-based dispatch with fallback to built-in |
 | Conflict-safe | Enable/carry never overwrites user-modified files |
@@ -69,6 +70,9 @@ boundaries. When an external API is unavailable, times out, or returns
 an error, the result is marked as failed and falls back to
 `codex_builtin`; AgentA must re-decide instead of treating the external
 reply as acceptance.
+
+For the practical operating rules, see
+[Multi-Session Dispatch Playbook](AI-Team/policies/multi-session-dispatch.md).
 
 ### Testing
 
@@ -112,6 +116,7 @@ Portable AI Team 是一个可携带的多 Agent AI 编码团队框架，支持�
 | --- | --- |
 | 跨 IDE | Codex、Google Antigravity、TraeCode（无子智能体时顺序降级） |
 | 多 Agent | A（调度）+ B（主实现）+ C（按需设计）+ D（并行实现） |
+| 多会话 | 新需求排队，不打断未验收任务；文件边界隔离 + 统一调度 |
 | 记忆系统 | 9 类经验记忆，支持合并和版本追踪 |
 | 外部模型 | 可选 API 调度，失败自动回退内置 |
 | 冲突安全 | 启用/带走绝不覆盖用户修改过的文件 |
@@ -145,6 +150,9 @@ AgentA 可把互不依赖的模块按明确的文件边界并行派单给 AgentB
 （最多 4 路）。外部 API 不可用、超时或返回错误时进入失败降级：
 结果标记失败并回退 `codex_builtin`，AgentA 必须重新决策，
 不能把外部模型回复当作验收结果。
+
+实战调度方法见
+[多会话并行调度手册](AI-Team/policies/multi-session-dispatch.md)。
 
 ### 测试
 
