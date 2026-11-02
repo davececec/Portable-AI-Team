@@ -82,7 +82,7 @@ After every accepted task, the orchestrator checks whether anything new and *sta
 - Confirmed architecture decision? → `technical-decisions.md`
 - Milestone? → `project-history.md`
 
-If all four are no, nothing is written. Only stable, reusable conclusions. Each capped at 300 chars, each category capped at 40 entries / 8,000 chars, oldest merged out.
+If all four are no, nothing is written. Only stable, reusable conclusions. Each entry targets under 300 chars, each category capped at 40 entries / 8,000 chars. When a cap is hit, the original stays untouched — new conclusions overflow into a dated attachment file, never deleted or compressed to make room. Preserving memory faithfully beats keeping it tidy.
 
 After one month, the team knows your routing preferences and UI conventions. After three months, it knows your defect patterns and data-modeling decisions. After a year, it's the equivalent of an engineer who has actually worked on your system — and that knowledge travels with the folder.
 

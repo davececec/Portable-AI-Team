@@ -21,7 +21,7 @@ Other things the framework does:
 - **Work orders, not chat history.** Sub-agents receive only the order path, project path, allowed file scope, needed files, and acceptance conditions. Token bill stays flat no matter how long the conversation gets.
 - **Model routing as a config file.** Every task routes to the model that fits it. Two parallel implementers deliberately get *different* models, because identical models make the same mistake twice.
 - **Failure discipline.** Probe once, not blind retries. A failed external call is not a result. Three consecutive failures → stop and ask a human.
-- **A memory that compounds.** Stable conclusions accumulate per-category (defect patterns, technical decisions, user preferences) with hard caps, and travel with the folder.
+- **A memory that compounds.** Stable conclusions accumulate per-category (defect patterns, technical decisions, user preferences) with caps that overflow into dated attachment files rather than deleting old memories, and travel with the folder.
 
 It runs on standard-library-only Python (no third-party deps), currently supports five platforms (Codex, Google Antigravity, TraeCode, Claude Code, WorkBuddy — the last two explicitly marked unverified), and is open source:
 
