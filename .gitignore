@@ -39,10 +39,13 @@ AI-Team/test-reports/
 AI-Team/defects/
 
 # Project-specific references
-AI-Team/references/
+AI-Team/references/*
+!AI-Team/references/llm-*.md
 
 # RZNY-specific design files
 AI-Team/ui-design-kit/RZNY-*
+AI-Team/ui-design-kit/design-system-demo-*/
+AI-Team/ui-design-kit/rzny-*
 AI-Team/ui-design-kit/design-system-demo-*/
 AI-Team/ui-design-kit/shopeers-*
 
@@ -56,3 +59,7 @@ AI-Team/ui-design-kit/shopeers-*
 Thumbs.db
 Desktop.ini
 .DS_Store
+# Internal task-control screenshots (contain internal IPs/names)
+AI-Team/evidence/
+AI-Team/seed/memory-*/credentials.md
+AI-Team/seed/memory-*/记忆账本.json

@@ -33,6 +33,11 @@ BRIDGES = (
     ("antigravity-agent", ".agents/agents/agent-b/agent.md", "bridges/antigravity/agent-b.md"),
     ("antigravity-agent", ".agents/agents/agent-c/agent.md", "bridges/antigravity/agent-c.md"),
     ("antigravity-agent", ".agents/agents/agent-d/agent.md", "bridges/antigravity/agent-d.md"),
+    ("workbuddy-rule", ".workbuddy/rules/portable-ai-team.md", "bridges/workbuddy/portable-ai-team.md"),
+)
+CLAUDE_BLOCK = (
+    "<!-- portable-ai-team-capsule:start -->",
+    "<!-- portable-ai-team-capsule:end -->",
 )
 INVISIBLE_CONTROLS = dict.fromkeys(map(ord, "\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069\ufeff"))
 QUOTE_PAIRS = (("\"", "\""), ("'", "'"), ("“", "”"), ("‘", "’"))
@@ -118,6 +123,29 @@ def agents_block(python_path: Path) -> bytes:
     return content.encode("utf-8")
 
 
+def claude_block(python_path: Path) -> bytes:
+    text = (Path(__file__).resolve().parent / "bridges" / "claude" / "claude.md").read_text(encoding="utf-8")
+    return text.replace("{{PYTHON_PATH}}", str(python_path)).encode("utf-8")
+
+
+def append_marked_block(target: Path, block: bytes) -> str:
+    """Append a marked block to a markdown file (create if missing).
+    Returns 'created' | 'appended' | 'merged' (identical block present)."""
+    start, end = CLAUDE_BLOCK
+    if target.exists():
+        original = target.read_bytes()
+        if start.encode() in original and end.encode() in original:
+            if block in original:
+                return "merged"
+            conflicts = ["目标文件已含不受当前清单管理的团队标记区块，请先人工检查"]
+            raise ValueError(conflicts[0])
+        separator = b"\n" if original.endswith((b"\n", b"\r")) else b"\n\n"
+        target.write_bytes(original + separator + block)
+        return "appended"
+    target.write_bytes(block)
+    return "created"
+
+
 def add_created_parents(target: Path, created_dirs: list[str]) -> None:
     missing: list[Path] = []
     parent = target.parent
@@ -135,7 +163,7 @@ def alternative_target(kind: str, target: Path, number: int = 1) -> Path:
     suffix = "" if number == 1 else f"-{number}"
     if kind == "codex-agent":
         return target.with_name(f"portable-ai-team-{target.stem}{suffix}.toml")
-    if kind in {"trae-rule", "antigravity-rule"}:
+    if kind in {"trae-rule", "antigravity-rule", "workbuddy-rule"}:
         return target.with_name(f"portable-ai-team-capsule{suffix}.md")
     if kind == "antigravity-agent":
         return target.parent.parent / f"portable-ai-team-{target.parent.name}{suffix}" / "agent.md"
@@ -325,6 +353,25 @@ def enable_capsule(python_path: Path) -> tuple[int, dict]:
         agents.write_bytes(block)
         entries.append({"kind": "agents-block", "path": "AGENTS.md", "mode": "file", "digest": digest(agents)})
         created.append("AGENTS.md")
+
+    # Claude Code: auto-discovers CLAUDE.md but not the AGENTS.md block.
+    # Mirror the team block into CLAUDE.md only when the project uses Claude Code.
+    claude_md = PROJECT_ROOT / "CLAUDE.md"
+    claude_cblock = claude_block(python_path)
+    if claude_md.exists():
+        try:
+            outcome = append_marked_block(claude_md, claude_cblock)
+        except ValueError as exc:
+            report = {"operation": "enable", "status": "blocked", "created": created, "merged": merged, "retained": [], "conflicts": [str(exc)], "memory_changed": memory_changed}
+            save_json(LAST_REPORT_PATH, report)
+            return 2, report
+        if outcome == "appended":
+            entries.append({"kind": "claude-block", "path": "CLAUDE.md", "mode": "block", "block": base64.b64encode(claude_cblock).decode("ascii")})
+            merged.append("CLAUDE.md（追加可逆标记区块）")
+        elif outcome == "created":
+            entries.append({"kind": "claude-block", "path": "CLAUDE.md", "mode": "file", "digest": digest(claude_md)})
+            created.append("CLAUDE.md")
+        # outcome == "merged": identical block already managed elsewhere; skip
 
     for kind, relative, source_relative in BRIDGES:
         source = bridge_source(source_relative, python_path)
@@ -680,6 +727,12 @@ def print_report(report: dict) -> None:
             print(f"{title}:")
             for value in values:
                 print(f"- {value}")
+    for check in report.get("checks", []):
+        mark = "✓" if check.get("ok") else "✗"
+        line = f"{mark} {check.get('name')}"
+        if check.get("detail"):
+            line += f" — {check['detail']}"
+        print(line)
     if report.get("backup"):
         print(f"备份位置: {report['backup']}")
     if report.get("review"):
@@ -690,9 +743,103 @@ def print_report(report: dict) -> None:
             print(f"- {value}")
 
 
+def validate_llm_config(cfg: object) -> list[str]:
+    """Offline structural check of LLM config (no network). Never leaks secrets."""
+    if not isinstance(cfg, dict):
+        return ["LLM配置必须是 JSON 对象"]
+    errors: list[str] = []
+    if not isinstance(cfg.get("enabled"), bool):
+        errors.append("enabled 必须是布尔值")
+    models = cfg.get("models")
+    if not isinstance(models, dict) or not models:
+        errors.append("models 必须是非空对象")
+    routing = cfg.get("routing", {})
+    if isinstance(routing, dict):
+        for name, role in routing.items():
+            if not isinstance(role, str) or (models and role not in models):
+                errors.append(f"routing[{name}] 指向未定义角色")
+                break
+    if cfg.get("enabled"):
+        base_url = cfg.get("base_url")
+        if not isinstance(base_url, str) or not base_url.startswith(("http://", "https://")):
+            errors.append("base_url 必须以 http(s):// 开头")
+        if not isinstance(cfg.get("api_key"), str) or not cfg.get("api_key", "").strip():
+            errors.append("api_key 必须是非空字符串")
+    return errors
+
+
+def probe_one(cfg: dict, model_id: str) -> tuple[bool, str]:
+    import urllib.request
+    url = str(cfg.get("base_url", "")).rstrip("/") + "/chat/completions"
+    body = json.dumps({
+        "model": model_id,
+        "messages": [{"role": "user", "content": "回复OK"}],
+        "max_tokens": 5,
+    }).encode("utf-8")
+    request = urllib.request.Request(
+        url, data=body, method="POST",
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {cfg.get('api_key', '')}"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=15) as response:
+            json.loads(response.read().decode("utf-8"))
+            return True, "响应正常"
+    except Exception as exc:  # noqa: BLE001 - report, never crash doctor
+        return False, str(exc)[:160]
+
+
+def doctor_capsule() -> tuple[int, dict]:
+    """Health check: python path, LLM config, model connectivity, bridges."""
+    team = load_team_data()
+    checks: list[dict] = []
+
+    def add(name: str, ok: bool, detail: str = "") -> None:
+        checks.append({"name": name, "ok": bool(ok), "detail": detail})
+
+    try:
+        add("Python 路径", True, str(configured_python_path()))
+    except ValueError as exc:
+        add("Python 路径", False, str(exc))
+
+    add("团队版本", True, f"v{team.get('team_version')} / {team.get('capsule_id')}")
+
+    cfg_path = CAPSULE_ROOT / "LLM配置.json"
+    cfg = None
+    if not cfg_path.exists():
+        add("LLM 配置", False, "缺少 LLM配置.json（复制 LLM配置.example.json 并填写）")
+    else:
+        try:
+            cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            add("LLM 配置", False, f"JSON 解析失败: {exc}")
+            cfg = None
+    if cfg is not None:
+        errors = validate_llm_config(cfg)
+        if errors:
+            add("LLM 配置", False, "；".join(errors))
+        elif not cfg.get("enabled"):
+            add("LLM 配置", True, "格式正确，但 enabled=false（将回退宿主模型）")
+        else:
+            add("LLM 配置", True, "格式正确且已启用")
+            for model_id in dict.fromkeys(cfg.get("models", {}).values()):
+                ok, detail = probe_one(cfg, model_id)
+                add(f"模型连通 {model_id}", ok, detail)
+
+    vcode, vreport = validate_capsule()
+    manifest = load_json(MANIFEST_PATH)
+    if not manifest:
+        add("桥接", False, "团队尚未启用（双击启用团队 或 python AI-Team/capsule.py enable）")
+    else:
+        add("桥接", vcode == 0, "；".join(vreport.get("errors", [])) or "校验通过")
+
+    failed = [c for c in checks if not c["ok"]]
+    report = {"operation": "doctor", "status": "healthy" if not failed else "attention", "checks": checks}
+    return (0 if not failed else 1), report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Portable AI Team 团队胶囊")
-    parser.add_argument("command", choices=("enable", "carry", "validate", "status", "merge"))
+    parser.add_argument("command", choices=("enable", "carry", "validate", "status", "merge", "doctor"))
     parser.add_argument("--python", dest="python_path", help="本项目默认 Python 解释器绝对路径")
     parser.add_argument("--other", dest="other", help="待合并的另一个 Portable AI Team 文件夹路径")
     args = parser.parse_args()
@@ -708,6 +855,8 @@ def main() -> int:
         code, report = carry_capsule()
     elif args.command == "validate":
         code, report = validate_capsule()
+    elif args.command == "doctor":
+        code, report = doctor_capsule()
     elif args.command == "merge":
         if not args.other:
             report = {"operation": "merge", "status": "blocked", "conflicts": ["请把另一个 Portable-AI-Team 文件夹拖到双击合并团队.cmd 上"]}

@@ -5,7 +5,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 MARKER = "portable-ai-team-managed-v1"
-TEAM_VERSION = "3.0.0"
+TEAM_VERSION = "3.1.0"
 ADAPTERS = {
     "codex-rules": ("AGENTS.md", "adapters/codex/AGENTS.md"),
     "codex-agent-b": (".codex/agents/agent-b.toml", "adapters/codex/agent-b.toml"),

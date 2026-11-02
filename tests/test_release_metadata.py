@@ -18,22 +18,25 @@ def load_unique_json(path: Path) -> dict:
 
 
 class ReleaseMetadataTests(unittest.TestCase):
-    def test_version_is_unified_to_300(self):
+    def test_version_is_unified_to_310(self):
         team = json.loads((ROOT / "AI-Team" / "team.json").read_text(encoding="utf-8"))
         team_py = (ROOT / "AI-Team" / "team.py").read_text(encoding="utf-8")
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         start = (ROOT / "START-HERE.md").read_text(encoding="utf-8")
-        self.assertEqual(team["team_version"], "3.0.0")
-        self.assertIn('TEAM_VERSION = "3.0.0"', team_py)
-        self.assertIn("v3.0.0", readme)
-        self.assertIn("v3.0.0", start)
-
-    def test_local_status_card_version_matches_when_present(self):
+        self.assertEqual(team["team_version"], "3.1.0")
+        self.assertIn('TEAM_VERSION = "3.1.0"', team_py)
+        self.assertIn("v3.1.0", readme)
+        self.assertIn("v3.1.0", start)
+        # 团队状态.json is machine-local; check only when present.
         status_path = ROOT / "团队状态.json"
-        if not status_path.is_file():
-            self.skipTest("团队状态.json is machine-local; nothing to check in a fresh clone")
-        status = json.loads(status_path.read_text(encoding="utf-8"))
-        self.assertEqual(status["team_version"], "3.0.0")
+        if status_path.is_file():
+            status = json.loads(status_path.read_text(encoding="utf-8"))
+            self.assertEqual(status["team_version"], "3.1.0")
+        # PROGRESS.md is internal (git-ignored); check only when present.
+        progress_path = ROOT / "PROGRESS.md"
+        if progress_path.is_file():
+            progress = progress_path.read_text(encoding="utf-8")
+            self.assertIn("`3.1.0`", progress)
 
     def test_status_card_and_team_json_capsule_ids_match(self):
         team = load_unique_json(ROOT / "AI-Team" / "team.json")
@@ -56,27 +59,45 @@ class ReleaseMetadataTests(unittest.TestCase):
         self.assertTrue((ROOT / "AI-Team/bridges/codex/agent-d.toml").is_file())
         self.assertTrue((ROOT / "AI-Team/bridges/antigravity/agent-d.md").is_file())
         self.assertTrue((ROOT / "AI-Team/adapters/trae/AgentD-import.md").is_file())
+
+    def test_v31_platform_adapters_and_onboarding_are_registered(self):
+        # v3.1 adds Claude Code and WorkBuddy bridges plus LLM onboarding docs.
+        for relative in (
+            "AI-Team/bridges/claude/claude.md",
+            "AI-Team/bridges/workbuddy/portable-ai-team.md",
+            "AI-Team/ide-guides/claude-code.md",
+            "AI-Team/ide-guides/workbuddy.md",
+            "AI-Team/references/llm-接入指南.md",
+        ):
+            self.assertTrue((ROOT / relative).is_file(), relative)
+        matrix = (ROOT / "AI-Team/ide-guides/compatibility-matrix.md").read_text(encoding="utf-8")
+        for phrase in ("Claude Code", "WorkBuddy", "五平台"):
+            self.assertIn(phrase, matrix)
+        capsule_py = (ROOT / "AI-Team/capsule.py").read_text(encoding="utf-8")
+        for phrase in ("workbuddy-rule", "claude_block", "doctor"):
+            self.assertIn(phrase, capsule_py)
         with (ROOT / "AI-Team/bridges/codex/agent-d.toml").open("rb") as stream:
             data = tomllib.load(stream)
         self.assertEqual(data["name"], "agent-d")
         self.assertNotIn("model", data)
 
     def test_documents_describe_v3_features_without_real_keys(self):
-        phrases = ("AgentD", "外部 API", "并行派单", "失败降级", "codex_builtin")
+        # PROGRESS.md is internal (git-ignored); only check files that ship.
         checked = 0
         for name in ("README.md", "START-HERE.md", "PROGRESS.md"):
             path = ROOT / name
             if not path.is_file():
                 continue
             text = path.read_text(encoding="utf-8")
-            for phrase in phrases:
+            for phrase in ("AgentD", "外部 API", "并行派单", "失败降级", "codex_builtin"):
                 self.assertIn(phrase, text, f"{name}: {phrase}")
             self.assertNotIn("Bearer ", text)
+            self.assertIn("memory-20261010", text)
             checked += 1
         self.assertGreaterEqual(checked, 1)
 
     def test_llm_config_has_only_structural_fields_checked(self):
-        # Read only the expected structure, not the secret value.
+        # LLM配置.json is a local-only config; skip in a fresh clone.
         config_path = ROOT / "LLM配置.json"
         if not config_path.is_file():
             self.skipTest("LLM配置.json is a local-only config; nothing to check in a fresh clone")

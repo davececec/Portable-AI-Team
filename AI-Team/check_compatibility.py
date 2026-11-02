@@ -17,7 +17,7 @@ TOP_LEVEL_FILES = ("START-HERE.md", "README.md", "requirements.txt", "Python路�
 TOP_LEVEL_DIRS = ("AI-Team",)
 EXCLUDED_PARTS = {
     "__pycache__", ".pytest_cache", ".mypy_cache", ".git", "dist", "deliveries", "tasks", "state",
-    "memory-backup-20261010", "merge-backups", "merge-inbox", "merge-reports",
+    "seed", "merge-backups", "merge-inbox", "merge-reports",
 }
 ANTIGRAVITY_TOOLS = {"view_file", "replace_file_content", "grep_search", "run_command", "browser_subagent"}
 
@@ -236,6 +236,9 @@ def validate_package(root: Path) -> list[str]:
     require_text(root / ".trae/rules/portable-ai-team.md", ("alwaysApply: true", "顺序降级", "完整聊天历史"), errors)
     require_text(root / "AGENTS.md", ("小A", "独立验收", "最多自动返工 2 轮", "干净上下文"), errors)
     require_text(root / ".agents/rules/portable-ai-team.md", ("小A", "独立验收", "最多自动返工 2 轮", "完整聊天历史"), errors)
+    require_text(root / ".workbuddy/rules/portable-ai-team.md", ("顺序降级", "独立验收"), errors)
+    if (root / "CLAUDE.md").is_file():
+        require_text(root / "CLAUDE.md", ("独立验收",), errors)
 
     required = (
         "START-HERE.md",
@@ -250,6 +253,10 @@ def validate_package(root: Path) -> list[str]:
         "AI-Team/adapters/trae/AgentA-import.md",
         "AI-Team/adapters/trae/AgentB-import.md",
         "AI-Team/check_compatibility.py",
+        "AI-Team/ide-guides/claude-code.md",
+        "AI-Team/ide-guides/workbuddy.md",
+        "AI-Team/bridges/workbuddy/portable-ai-team.md",
+        "AI-Team/bridges/claude/claude.md",
     )
     for relative in required:
         if not (root / relative).is_file():

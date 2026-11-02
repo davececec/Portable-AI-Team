@@ -8,4 +8,4 @@
 
 ## 模型
 
-当前使用 `LLM配置.json` 中 `routing.agent_b_implementation` 指定的模型（当前为 `default/deepseek-v4-flash`）。外部 API 不可用时降级为 Codex 内置子代理或顺序模拟。具体模型由 AgentA（ZH）分配。
+当前使用 `LLM配置.json` 中 `routing.agent_b_implementation` 指定的模型（2026-10-31 起：日常执行类开发为 `default/glm5-3-flash`，高风险/关键链路为 `default/deepseek-v4-flash`）。外部 API 不可用时降级为 Codex 内置子代理或顺序模拟。具体模型由 AgentA（ZH）分配。

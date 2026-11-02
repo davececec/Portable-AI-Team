@@ -25,6 +25,8 @@ and updates other categories as needed. Only carry stable, reusable
 conclusions. Never record business source code, secrets, raw logs,
 build artifacts, or project dependencies.
 
+**Credential lookup rule (2026-10-30, after recurring misplacement):** When the user says "记下来/按规定放" about any account+password (database / Windows / LLM / web login), the ONLY correct target is `credentials.md` (authoritative) + `团队经验速查手册.md` §11 (mirror). Do NOT write to `.env` (runtime config only), tickets, README, or chat. Search both `Portable-AI-Team/` AND `Portable-AI-TeamV3.0/` before concluding a team file doesn't exist.
 **Important:** Never commit `credentials.md`, API keys, or any plaintext
 passwords to version control. Sensitive credentials must stay in
 `LLM配置.json` (git-ignored) and be rotated immediately if exposed.
+

@@ -1,44 +1,48 @@
-# 从这里开始 (v3.0.0)
+# 从这里开始 (v3.1.0)
 
-1. 把完整的 `Portable-AI-Team/` 文件夹复制到业务项目根目录。
-2. 打开 `Python路径.txt`，确认第一条非空内容是当前电脑的 Python 可执行文件绝对路径。当前默认是 `D:\00-python\python\python.exe`。
+1. 把整个 `Portable-AI-Team/` 文件夹复制到业务项目根目录。
+2. 把 `Python路径.txt.example` 复制为 `Python路径.txt`：确认第一行是你当前使用的 Python 可执行文件的绝对路径（例如 `C:\Python311\python.exe`）。
 3. 双击 `双击启用团队.cmd`。
-4. 用 Codex、Google Antigravity 或 TraeCode 打开业务项目，说：“ZH，给我做一个……”。
-5. 项目完成或准备带走时，先让 AgentA 归纳可复用记忆，再双击 `双击带走团队.cmd`，确认报告后移走整个文件夹。
-6. 需要合并两份团队经验时，把另一份已带走的 `Portable-AI-Team/` 文件夹拖到 `双击合并团队.cmd` 上。V3.0 可安全合并 v2.3+ 胶囊；更旧、缺失或无效版本会被拒绝。
+4. 接入模型：把 `LLM配置.example.json` 复制为 `LLM配置.json`，填入你自己的 `base_url` / `api_key` / `models`，再运行 `python AI-Team/capsule.py doctor` 自检。30 秒上手见 `AI-Team/references/llm-接入指南.md`。
+5. 在 Codex、Google Antigravity、TraeCode、Claude Code 或 WorkBuddy 的业务项目里说："ZH，帮我做一个……"。
+6. 项目完成或准备交接时，让 AgentA 沉淀可复用经验，再双击 `双击带走团队.cmd`，确认经验已带走且工作文件未动。
+7. 需要合并两个团队经验时，在较早一个已带走的 `Portable-AI-Team/` 文件夹上的 `双击合并团队.cmd` 上。V3.1 可安全合并 v2.3+ 胶囊，空、缺失或无效版本会被拒绝。
 
-团队主体始终留在单个文件夹内。双击启用只会在业务项目根生成 IDE 自动发现所必需的最小桥接；这是 IDE 能在打开项目时找到团队的必要条件，不是把团队主体重新散落到根目录。
+团队经验始终留在胶囊文件夹内；双击脚本只改业务项目里的 IDE 自动加载文件（规则、子代理）。多个 IDE 共存时找到团队的必要内容都落在前面团队胶囊的散落到根目录。
 
-## V3.0 执行方式
+## V3.1 执行方式
 
-- AgentA 负责需求、工单、派单和独立验收；AgentB 为主实现，AgentD 分担独立模块。
-- AgentB 和 AgentD 只接收工单路径、项目路径、允许修改范围、必要文件列表和完成条件；禁止继承完整对话或互相读取输出。
-- 外部 API 调度由 `AI-Team/llm_dispatch.py` 执行。AgentA 可先运行 `python AI-Team/llm_dispatch.py --test` 探测模型。
-- 并行派单时，互不依赖任务可通过 `--dispatch-parallel --tasks <任务文件>` 分发；`max_parallel` 上限是 4。
-- 外部 API 不可用、超时或返回错误时进入失败降级流程，结果标记失败并回退 `codex_builtin`。AgentA 必须重新决策，不能把外部模型回复当作验收结果。
-- 本地测试入口是 `python -m unittest discover -s tests -v`；所有调度测试离线打桩，不访问网络，不输出真实密钥。
+- AgentA 负责需求、工单、派单和独立验收；AgentB 为主实现，AgentD 负责并行模块。
+- AgentB 与 AgentD 只接收工单路径、项目路径、允许修改的范围、必要文件列表与验收条件，禁止继承完整对话历史。
+- 外部 API 路由由 `AI-Team/llm_dispatch.py` 执行。AgentA 可用 `python AI-Team/llm_dispatch.py --test` 探测模型。
+- 并行派单时用 `--dispatch-parallel --tasks <任务文件>` 发送，`max_parallel` 上限 4。
+- 外部 API 未配置、超时或返回失败时走失败降级流程：不重试、不阻塞，退回 `codex_builtin`。AgentA 按内置流程，不能把外部模型回复当作最终结果。
+- 自检：`python AI-Team/capsule.py doctor` 依次校验 Python 路径、团队版本、LLM 配置结构与每个模型的最小连通性，全部通过才算可开工。
+- 本地测试：`python -m unittest discover -s tests -v`；有外部测试桩的测试离线可跑，不依赖真实密钥。
 
-## 状态卡和合并
+## 状态与合并
 
-- `团队状态.json` 在胶囊根目录，能看当前状态、记忆版本、当前项目、最近项目和最近带走时间。
-- `AI-Team/memory/记忆账本.json` 记录每次带走的项目、时间、记忆版本和变化记忆文件。
-- 仍启用的胶囊复制到新项目会被阻止；请先回原项目双击带走。
-- 合并只处理记忆和账本，不处理业务源码、依赖、构建产物、IDE 配置或桥接。
-- 无冲突记忆自动合并；同名不同内容进入 `AI-Team/memory/merge-inbox/`，不会覆盖当前文件。
-- 合并前自动备份；重复合并会明确报告已完成或内容一致。
+- `团队状态.json` 在胶囊根目录保存启用状态、团队版本、当前项目名、启用时间和项目路径。
+- `AI-Team/memory/记忆账本.json` 记录每次带走的项目、时间、团队版本和变更文件。
+- 已启用的胶囊复制到新项目会被阻止：请回原项目双击带走。
+- 合并只同步记忆账本与经验，不碰业务源码、工单、交付物、IDE 或用户配置。
+- 无冲突时直接自动合并；同路径不同内容进入 `AI-Team/memory/merge-inbox/`，不覆盖当前文件。
+- 合并前自动备份；重复合并会确认经验基线一致。
 
 ## 平台备注
 
-- **Codex**：桥接根 `AGENTS.md` 和 `.codex/agents/*.toml`，实际角色资料仍在胶囊内。
-- **Google Antigravity**：桥接 `.agents/rules/` 和 `.agents/agents/`，主 Agent 调用 AgentB/AgentD 和按需 AgentC 后独立验收。
-- **TraeCode**：桥接 `.trae/rules/`。如当前版本没有子智能体能力，按同一规则顺序降级，不阻塞使用。
+- **Codex**：规则进 `AGENTS.md` 与 `.codex/agents/*.toml`，实际角色以胶囊内置为准。
+- **Google Antigravity**：规则进 `.agents/rules/` 与 `.agents/agents/`，Agent 子代理 AgentB/AgentD 和按需 AgentC 独立验收。
+- **TraeCode**：规则进 `.trae/rules/`；当前版本没有子代理入口，按同一顺序顺序降级使用。
+- **Claude Code**：团队区块镜像进 `CLAUDE.md`（仅当项目中已存在该文件；追加带标记区块，可逆）。未官方验证。
+- **WorkBuddy**：规则进 `.workbuddy/rules/portable-ai-team.md`；按 A->C->B->D->C 顺序模拟角色。未官方验证。
 
-已有文件不会被覆盖；冲突时生成合法并存桥接。带走时只删除指纹未变的受管文件或精确受管区块，用户修改过的文件会保留并报告。完整说明位于 `AI-Team/ide-guides/compatibility-matrix.md`。
+任何文件都不会被覆盖；冲突时生成合规的并行文件。带走时只删除指定未改动文件并确完整校验，用户修改过的文件会保留并告警。平台说明见 `AI-Team/ide-guides/compatibility-matrix.md`。
 
-新建主要界面、整体改版、明确美化时按需 C 设计 -> B/D 实现 -> C 实际视觉检查 -> A 独立验收；纯后台及文字/颜色小改默认跳过 C。无子智能体时明确角色顺序模拟，不声称独立 C 或干净上下文隔离；无截图能力标未验证。
+新建需要设计、视觉版、确切界面时走：C 设计 -> B/D 实现 -> C 实现后视觉审查 -> A 独立验收。后台设计稿/角色小样默认交给 C；没有设计稿时确认角色顺序模拟，没有移动则 C 不删文件不改动；无截图则视觉未验证。
 
-旧版升级：先在原项目用旧版双击带走并确认清理，备份旧 `AI-Team/memory/` 和 `Python路径.txt`，换上新版胶囊后合并记忆、恢复 Python 配置再启用。禁止直接覆盖仍启用的旧胶囊，禁止把旧 `state/` 复制或覆盖到新版；不支持原地自动迁移。详见 README。
+老胶囊升级：回原项目用旧版双击带走并确认经验已带走 `AI-Team/memory/` 与 `Python路径.txt`，把新版放入后合并经验、恢复 Python 路径配置。不要直接覆盖启用的旧胶囊，不要把旧 `state/` 复制/覆盖到新版；不支持原路径自动迁移。见 README。
 
-中文双击入口使用 Windows PowerShell 读取 `Python路径.txt`，再调用唯一 `AI-Team/capsule.py`，不要求 Python 位于 PATH。配置兼容 BOM、引号、空白和不可见方向字符；无效路径不会修改项目。
+双击脚本使用 Windows PowerShell 读取 `Python路径.txt`，再调用唯一 `AI-Team/capsule.py`；不需要 Python 位于 PATH。该文件只读第一行，容忍 BOM、前缀、空白和不可见 Unicode 字符；有效路径请修改第一行。
 
-启用后根桥接会记录默认 Python 路径。AgentB/AgentD 运行 Python、安装依赖和测试时优先使用它。带走前只归纳稳定可复用的偏好、技术与项目摘要；不要把业务源码、密钥、原始日志、构建产物或项目依赖放进胶囊。`AI-Team/memory-backup-20261010/` 是恢复备份，不会进入分发 ZIP；保留到 V3.0 稳定确认后再处理。
+启用后规则与子代理记得默认 Python 路径，AgentB/AgentD 需要 Python 时安装依赖和测试时尽量使用同一解释器。当前只记录稳定可复用的偏好；不要沉淀项目摘要、业务源码、密钥、原始日志；经验只进项目目录规则与团队胶囊。`AI-Team/seed/memory-20261010/` 是脱敏后的恢复种子数据，不进入分发包 ZIP；团队 V3.1 稳定确认后再纳入。

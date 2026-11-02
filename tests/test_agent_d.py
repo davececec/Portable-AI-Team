@@ -81,7 +81,7 @@ class AgentDCapsuleTests(unittest.TestCase):
         manifest = json.loads((self.capsule / "state" / "installation.json").read_text(encoding="utf-8"))
         self.assertIn(".codex/agents/agent-d.toml", [entry["path"] for entry in manifest["entries"]])
         status = json.loads((self.capsule / "团队状态.json").read_text(encoding="utf-8"))
-        self.assertEqual(status["team_version"], "3.0.0")
+        self.assertEqual(status["team_version"], "3.1.0")
         self.assertEqual(status["current_state"], "enabled")
 
         validated = run_capsule(self.capsule, "validate")
@@ -155,6 +155,8 @@ class AgentDCapsuleTests(unittest.TestCase):
         self.assertEqual(blocked.returncode, 2, blocked.stdout + blocked.stderr)
         self.assertIn("先在原项目双击带走团队", blocked.stdout)
         self.assertFalse((second / "AGENTS.md").exists())
+        self.assertFalse((second / ".workbuddy").exists())
+        self.assertFalse((second / "CLAUDE.md").exists())
         self.assertEqual((second / "业务.txt").read_text(encoding="utf-8"), "不受影响\n")
 
 

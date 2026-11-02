@@ -1,15 +1,16 @@
 {
+  "_说明": "复制本文件为 LLM配置.json 再填写。任何 OpenAI 兼容网关都适用（公司网关 / 自建 vLLM / OpenRouter / 云厂商 OpenAI 兼容端点）。模型名必须与你网关 /models 里实际可用的名字一致。",
   "enabled": false,
-  "base_url": "https://your-llm-proxy.example.com/v1",
+  "base_url": "https://your-llm-gateway.example.com/v1",
   "api_key": "YOUR_API_KEY_HERE",
   "models": {
-    "fast": "default/qwen38-27b",
-    "agent_b": "default/deepseek-v4-flash",
-    "balanced": "default/deepseek-v4-flash",
-    "strong": "default/glm5-3-flash",
-    "vision": "default/qwen3-vl-30b-a3b-instruct",
-    "agent_c": "default/deepseek-v4-flash",
-    "agent_d": "default/qwen38-27b"
+    "fast": "your-fast-model",
+    "agent_b": "your-implementation-model",
+    "balanced": "your-balanced-model",
+    "strong": "your-strong-reasoning-model",
+    "vision": "your-vision-model",
+    "agent_c": "your-design-model",
+    "agent_d": "your-second-implementation-model"
   },
   "routing": {
     "agent_b_implementation": "agent_b",
