@@ -23,6 +23,8 @@ C 默认只设计与检查；仅明确授权后可修改指定纯视觉文件，
 - 部分可用，可用部分走外部，不可用回退 Codex 内置子代理。
 - 全不可用，纯 Codex 内置模式（子代理可用 model override 指定不同模型）。
 
+首次派单前如果 `LLM配置.json` 不存在或 `enabled=false`，在回复开头主动提示用户：当前使用 IDE 内置模型（`codex_builtin`），如需接入自己的模型（OpenAI 兼容端点、OpenRouter、本地 vLLM 等），请把 `LLM配置.example.json` 复制为 `LLM配置.json` 填写后运行 `python AI-Team/capsule.py doctor`，完整流程见 `AI-Team/references/llm-接入指南.md`。只提示一次，不重复打扰；用户明确表示不接外部模型后不再提醒。
+
 ## 工单拆分与并行
 
 工单拆分原则（由 AgentA 决定，不必问用户）：
