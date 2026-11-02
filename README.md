@@ -97,6 +97,13 @@ solutions, feedback patterns) so the team starts with prior art instead of a
 blank slate. It is never auto-merged into `AI-Team/memory/` and never included
 in the cross-IDE distribution ZIP.
 
+### Further reading
+
+- [How We Run an AI Engineering Team](docs/articles/how-we-run-an-ai-engineering-team.md) —
+  the operating methodology behind the framework: independent acceptance,
+  work orders instead of chat history, model routing, and a memory that
+  compounds.
+
 ### Testing
 
 ```bash
@@ -210,6 +217,12 @@ AgentA 可把互不依赖的模块按明确的文件边界并行派单给 AgentB
 （错误模式、完成标准、决策、有效解法、反馈模式），
 让团队带着既有经验开工而不是从零开始。
 它不会被自动合并进 `AI-Team/memory/`，也不会进入跨 IDE 分发包 ZIP。
+
+### 延伸阅读
+
+- [如何管理一支 AI 工程团队](docs/articles/how-we-run-an-ai-engineering-team.md) —
+  框架背后的运作方法论：实现与验收分离、工单而非聊天记录、模型路由、
+  会复利的经验记忆。
 
 ### 测试
 
